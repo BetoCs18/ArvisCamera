@@ -1,0 +1,7 @@
+{
+  "name": "ArvisCamera",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

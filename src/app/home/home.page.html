@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>RTSP Stream</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form (submit)="startStream()">
+    <ion-item>
+      <ion-label position="floating">URL de la transmisión RTSP</ion-label>
+      <ion-input [(ngModel)]="rtspUrl" name="rtspUrl" required></ion-input>
+    </ion-item>
+    <ion-button expand="full" type="submit">Iniciar Transmisión</ion-button>
+  </form>
+
+  <div>
+    <img [src]="dynamicImageUrl" alt="dynamicImageUrl" />
+  </div>
+
+
+  <div *ngIf="httpStreamUrl">
+    <!--<video [src]="sanitizer.bypassSecurityTrustResourceUrl(httpStreamUrl)" controls autoplay></video>
+    <video [src]="sanitizer.bypassSecurityTrustResourceUrl(httpStreamUrl)" controls autoplay></video>-->
+    <!--<iframe [src]="sanitizer.bypassSecurityTrustResourceUrl(streamHttpUrl)" width="100%" height="500px"></iframe>-->
+  </div>
+</ion-content>

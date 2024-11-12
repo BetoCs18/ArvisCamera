@@ -1,0 +1,87 @@
+import { Component } from '@angular/core';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { Capacitor, Plugins } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Platform } from '@ionic/angular';
+//import FFmpegStream from 'src/plugins/ffmpeg-stream.plugin';
+
+interface FFmpegStreamPlugin {
+  startStream(options: { rtspUrl: string }): Promise<{ httpUrl: string }>;
+}
+@Component({
+  selector: 'app-home',
+  templateUrl: 'home.page.html',
+  styleUrls: ['home.page.scss'],
+})
+export class HomePage {
+  rtspUrl: string = '';
+  httpStreamUrl: string | null = null;
+  dynamicImageUrl: SafeUrl | null = null;
+  intervalId: any;
+
+  constructor(public sanitizer: DomSanitizer, private platform: Platform) {
+    this.initializeApp();
+  }
+
+  initializeApp() {
+    this.platform.ready().then(() => {
+      this.createCacheFolder();
+    });
+  }
+
+  async createCacheFolder() {
+    try {
+      await Filesystem.mkdir({
+        path: 'live', // Nombre de la carpeta que quieres crear
+        directory: Directory.Cache, // Ubicación en la carpeta de caché de la app
+        recursive: true,
+      });
+      console.log('Carpeta creada en caché');
+    } catch (error) {
+      console.error('Error al crear la carpeta', error);
+    }
+  }
+
+  async startStream() {
+    try {
+      const FFmpegStream = Capacitor.Plugins['FFmpegStream'] as unknown as FFmpegStreamPlugin;
+      const result = await FFmpegStream.startStream({ rtspUrl: this.rtspUrl });
+      this.httpStreamUrl = result.httpUrl;
+      this.startImageRefresh();
+    } catch (error) {
+      console.error('Error al iniciar la transmisión:', error);
+    }
+  }
+
+  async getImageUrl(){
+    try{
+      const result = await Filesystem.readFile({
+        path: 'live/stream.jpg', // Ruta relativa dentro del directorio de caché
+        directory: Directory.Cache,
+      });
+      // Convierte la imagen en base64 a una URL segura para Angular
+      this.dynamicImageUrl = this.sanitizer.bypassSecurityTrustUrl(`data:image/jpeg;base64,${result.data}`);
+      console.error(this.dynamicImageUrl);
+    } catch (error) {
+      console.error('Error al leer el archivo: ', error);
+    }
+  }
+
+  startImageRefresh(){
+    console.error("Inicia start image ref");
+    this.getImageUrl();
+    this.intervalId = setInterval(() => {
+      this.getImageUrl();
+    }, 1000/30);
+  }
+
+  stopImageRefresh(){
+    if (this.intervalId){
+      clearInterval(this.intervalId);
+    }
+  }
+
+  ngOnDestroy(){
+    this.stopImageRefresh();
+  }
+}
