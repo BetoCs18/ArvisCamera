@@ -40,7 +40,7 @@ public class FFmpegStreamPlugin extends Plugin{
     //String ffmpegCommand = "-i " + rtspUrl + " -c:v libx264 -preset ultrafast -f hls -hls_time 2 -hls_list_size 5 -hls_flags delete_segments " + outputHttpUrl;
     String ffmpegCommand = "-y -i " + rtspUrl +
                             " -s 1024x768" +
-                            " -vf fps=24" +
+                            " -vf fps=30" +
                             " -update 1" +
                             " -q:v 2" +
                             " " + outputFilePath;

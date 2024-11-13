@@ -17,6 +17,7 @@ export class HomePage {
   httpStreamUrl: string | null = null;
   dynamicImageUrl: SafeUrl | null = null;
   intervalId: any;
+  lastImageData: string | null = null;
 
   constructor(public sanitizer: DomSanitizer, private platform: Platform) {
     this.initializeApp();
@@ -58,9 +59,15 @@ export class HomePage {
         path: 'live/stream.jpg', // Ruta relativa dentro del directorio de caché
         directory: Directory.Cache,
       });
-      // Convierte la imagen en base64 a una URL segura para Angular
-      if(result.data != null){
-        this.dynamicImageUrl = this.sanitizer.bypassSecurityTrustUrl(`data:image/jpeg;base64,${result.data}`);
+      if (result.data) {
+        if (typeof result.data === 'string') {
+          this.dynamicImageUrl = this.sanitizer.bypassSecurityTrustUrl(`data:image/jpeg;base64,${result.data}`);
+        } else if (result.data instanceof Blob) {
+          const blobUrl = URL.createObjectURL(result.data);
+          this.dynamicImageUrl = this.sanitizer.bypassSecurityTrustUrl(blobUrl);
+        }
+      } else {
+        console.warn("La imagen está vacía o no se pudo leer.");
       }
       //console.log(this.dynamicImageUrl);
     } catch (error) {
@@ -73,7 +80,7 @@ export class HomePage {
     this.getImageUrl();
     this.intervalId = setInterval(() => {
       this.getImageUrl();
-    }, 1000/24);
+    }, 1000/30);
   }
 
   stopImageRefresh(){
