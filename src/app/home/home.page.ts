@@ -3,7 +3,6 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Capacitor, Plugins } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Platform } from '@ionic/angular';
-//import FFmpegStream from 'src/plugins/ffmpeg-stream.plugin';
 
 interface FFmpegStreamPlugin {
   startStream(options: { rtspUrl: string }): Promise<{ httpUrl: string }>;
@@ -43,11 +42,11 @@ export class HomePage {
   }
 
   async startStream() {
+    this.startImageRefresh();
     try {
       const FFmpegStream = Capacitor.Plugins['FFmpegStream'] as unknown as FFmpegStreamPlugin;
       const result = await FFmpegStream.startStream({ rtspUrl: this.rtspUrl });
       this.httpStreamUrl = result.httpUrl;
-      this.startImageRefresh();
     } catch (error) {
       console.error('Error al iniciar la transmisión:', error);
     }
@@ -60,8 +59,10 @@ export class HomePage {
         directory: Directory.Cache,
       });
       // Convierte la imagen en base64 a una URL segura para Angular
-      this.dynamicImageUrl = this.sanitizer.bypassSecurityTrustUrl(`data:image/jpeg;base64,${result.data}`);
-      console.error(this.dynamicImageUrl);
+      if(result.data != null){
+        this.dynamicImageUrl = this.sanitizer.bypassSecurityTrustUrl(`data:image/jpeg;base64,${result.data}`);
+      }
+      //console.log(this.dynamicImageUrl);
     } catch (error) {
       console.error('Error al leer el archivo: ', error);
     }
@@ -72,7 +73,7 @@ export class HomePage {
     this.getImageUrl();
     this.intervalId = setInterval(() => {
       this.getImageUrl();
-    }, 1000/30);
+    }, 1000/24);
   }
 
   stopImageRefresh(){
