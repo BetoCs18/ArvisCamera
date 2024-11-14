@@ -25,3 +25,22 @@
 #container a {
   text-decoration: none;
 }
+
+.canvas_container{
+  width: 100%;
+  position: relative;
+  float: left;
+}
+
+.output_canvas{
+  z-index: 1;
+  position: absolute;
+}
+
+.canvas_container{
+  z-index: 0;
+}
+
+.canvas_container img{
+  width: 100%;
+}

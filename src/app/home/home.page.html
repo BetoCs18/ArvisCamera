@@ -13,14 +13,11 @@
     <ion-button expand="full" type="submit">Iniciar Transmisión</ion-button>
   </form>
 
-  <div>
+  <!--<div>
     <img [src]="dynamicImageUrl" alt="dynamicImageUrl" />
-  </div>
-
-
-  <div *ngIf="httpStreamUrl">
-    <!--<video [src]="sanitizer.bypassSecurityTrustResourceUrl(httpStreamUrl)" controls autoplay></video>
-    <video [src]="sanitizer.bypassSecurityTrustResourceUrl(httpStreamUrl)" controls autoplay></video>-->
-    <!--<iframe [src]="sanitizer.bypassSecurityTrustResourceUrl(streamHttpUrl)" width="100%" height="500px"></iframe>-->
+  </div>-->
+  <div class="canvas_container">
+    <img #inputImage [src]="dynamicImageUrl" alt="dynamicImageUrl" width="100%"/>
+    <canvas #outputCanvas class="output_canvas" width="640px" height="427px"></canvas>
   </div>
 </ion-content>
