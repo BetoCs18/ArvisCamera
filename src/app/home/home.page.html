@@ -13,11 +13,7 @@
     <ion-button expand="full" type="submit">Iniciar Transmisión</ion-button>
   </form>
 
-  <!--<div>
-    <img [src]="dynamicImageUrl" alt="dynamicImageUrl" />
-  </div>-->
-  <div class="canvas_container">
-    <img #inputImage [src]="dynamicImageUrl" alt="dynamicImageUrl" width="100%"/>
-    <canvas #outputCanvas class="output_canvas" width="640px" height="427px"></canvas>
+  <div #contentDiv class="canvas_container">
+    <img #inputImage [src]="dynamicImageUrl" alt="dynamicImageUrl" style="display: block;" width="100%"/>
   </div>
 </ion-content>

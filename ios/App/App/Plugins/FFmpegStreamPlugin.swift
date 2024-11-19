@@ -1,8 +1,8 @@
 //
-//  File.swift
+//  FFmpegStreamPlugin.swift
 //  App
 //
-//  Created by Abel Bueno on 14/11/24.
+//  Created by Abel Bueno on 15/11/24.
 //
 
 import Foundation
@@ -13,6 +13,7 @@ import ffmpegkit
 public class FFmpegStreamPlugin: CAPPlugin{
     
     @objc func startStream(_ call: CAPPluginCall){
+        print("Entro al plugin")
         guard let rtspUrl = call.getString("rtspUrl") else {
             call.reject("La URL RTSP es necesaria.")
             return
