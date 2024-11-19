@@ -1,3 +1,15 @@
 <ion-app>
-  <ion-router-outlet></ion-router-outlet>
+  <ion-header>
+    <ion-toolbar  class="custom-toolbar">
+      <ion-title class="logo">ARVIS TRAINER</ion-title>
+      <ion-buttons slot="end">
+        <ion-fab></ion-fab>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Content -->
+  <ion-content id="main-content" class="ion-padding">
+    <ion-router-outlet></ion-router-outlet>
+  </ion-content>
 </ion-app>

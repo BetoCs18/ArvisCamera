@@ -1,0 +1,37 @@
+<ion-content class="ion-padding">
+  <form (ngSubmit)="startStream()">
+    <!-- Entrada para la URL de la transmisión RTSP -->
+    <ion-item>
+      <ion-label position="floating">URL de la transmisión RTSP</ion-label>
+      <ion-input [(ngModel)]="rtspUrl" name="rtspUrl" required></ion-input>
+    </ion-item>
+  
+    <ion-list>
+      <ion-item>
+        <ion-select
+          placeholder="Selecciona un modelo"
+          (ionChange)="onModelSelect($event.detail.value, 'assets/postures/' + $event.detail.value.coordenadas.imageName)"
+          required>
+          <ion-select-option *ngFor="let model of models" [value]="model">
+            {{ model.name }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ion-list>
+    
+    <!-- Botón para iniciar la transmisión -->
+    <ion-button expand="full" type="submit" [disabled]="!selectedModel">Iniciar Transmisión</ion-button>
+  </form>
+
+  <div #contentDiv class="canvas_container">
+    <img #inputImage [src]="dynamicImageUrl" alt="dynamicImageUrl" style="display: block;" width="100%"/>
+  </div>
+</ion-content>
+
+
+
+<ion-footer>
+  <ion-toolbar color="{{FooterColor}}">
+    <ion-title>{{statusPose}}</ion-title>
+  </ion-toolbar>
+</ion-footer>

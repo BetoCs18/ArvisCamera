@@ -1,40 +1,51 @@
-import { Component, ElementRef, AfterViewInit, ViewChild, OnInit } from '@angular/core';
+import { Component, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
 import { FilesetResolver, PoseLandmarker, DrawingUtils, PoseLandmarkerResult } from '@mediapipe/tasks-vision';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Platform } from '@ionic/angular';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { HttpClient } from '@angular/common/http';
 import FFmpegStream from 'src/plugins/ffmpeg-stream.plugin';
 
+
 @Component({
-  selector: 'app-home',
-  templateUrl: 'home.page.html',
-  styleUrls: ['home.page.scss'],
+  selector: 'app-streaming-ffmpeg',
+  templateUrl: './streaming-ffmpeg.page.html',
+  styleUrls: ['./streaming-ffmpeg.page.scss'],
 })
-export class HomePage implements OnInit, AfterViewInit {
+export class StreamingFfmpegPage implements AfterViewInit  {
+
+
   @ViewChild('contentDiv', { static: true }) contentDiv!: ElementRef<HTMLDivElement>;
   @ViewChild('inputImage', {static: true}) inputImage!: ElementRef<HTMLImageElement>;
 
   outputCanvas!: HTMLCanvasElement;
+
   private canvasCtx!: CanvasRenderingContext2D;
-  rtspUrl: string = '';
   httpStreamUrl: string | null = null;
   poseLandmarker!: PoseLandmarker;
   runnungMode = "IMAGE";
   drawingUtils!: DrawingUtils;
-  dynamicImageUrl: SafeUrl | null = null;
+  dynamicImageUrl: SafeUrl | null = '../assets/Portada_Fondo_-_Camara.png';
   intervalId: any;
   lastImageData: string | null = null;
+  rtspUrl: string = 'rtsp://192.168.1.18/1/h264major';
 
-  constructor(public sanitizer: DomSanitizer, private platform: Platform) {}
 
-  ngOnInit() {
-      this.setImage();
-  }
+  jsonData :any;
+  selectedModel: any = null;
+  errorsPose:any = 0;
+  errorsPosePoints:any = '';
+  statusPose:any = 'Estatus de la Postura';
+  FooterColor:any = "primary";
+  models:any;
+
+  constructor(public sanitizer: DomSanitizer, private platform: Platform, private http: HttpClient) {}
 
   ngAfterViewInit() {
     this.initializeApp();
     setTimeout(() => {
       this.initializePoseDetection();
+      this.getJsonModels();
     }, 500)
   }
 
@@ -42,16 +53,6 @@ export class HomePage implements OnInit, AfterViewInit {
     this.platform.ready().then(() => {
       this.createCacheFolder();
     });
-  }
-
-  setImage(){
-    const image = new Image();
-    image.src = 'assets/images/Portada_Fondo_-_Camara.png';
-    this.dynamicImageUrl = image.src;
-  }
-
-  printValues(){
-    this.onImageLoad();
   }
 
   onImageLoad(){
@@ -70,22 +71,6 @@ export class HomePage implements OnInit, AfterViewInit {
       this.drawingUtils = new DrawingUtils(this.canvasCtx);
     } else {
       console.error('Error: no se pudo obtener el contexto del canvas');
-    }
-  }
-
-  validateContext(): boolean{
-    const gl = this.outputCanvas.getContext('webgl') || this.outputCanvas.getContext('experimental-webgl');
-    console.log('WebGL Supported', !!gl);
-
-    const gl2 = this.outputCanvas.getContext('webgl2');
-    console.log('WebGl 2 Supported', !!gl2);
-
-    if(!!gl && !!gl2){
-      console.log(true);
-      return true;
-    }else{
-      console.log(false);
-      return false;
     }
   }
 
@@ -203,6 +188,7 @@ export class HomePage implements OnInit, AfterViewInit {
 
   private async startImageRefresh() {
     // Ejecuta el refresco de imagen a intervalos
+    this.getJsonModels();
     setInterval(async () => {
       const imageElement = await this.getImageUrl();
       if (imageElement) {
@@ -220,17 +206,98 @@ export class HomePage implements OnInit, AfterViewInit {
   }
 
   private onResults(results: PoseLandmarkerResult) {
-    if(!this.canvasCtx) return;
+    const indicesToSkip = [20, 22, 18, 21, 19, 17, 31, 30, 29, 31];
+    if (!this.selectedModel || !this.selectedModel.coordenadas || !this.selectedModel.coordenadas.landmarks) {
+      console.error('Modelo de referencia no válido o no seleccionado.');
+      return;
+    }
+  
+    if (!this.canvasCtx) return;
     this.canvasCtx.save();
     this.canvasCtx.clearRect(0, 0, this.outputCanvas.width, this.outputCanvas.height);
-
+  
     for (const landmark of results.landmarks) {
+      this.errorsPose = 0;
+      this.errorsPosePoints = '';
+  
+      for (let index = 11; index < landmark.length; index++) {
+        const point = landmark[index];
+        const x = point.x * this.outputCanvas.width; // Coordenada x escalada al tamaño del canvas
+        const y = point.y * this.outputCanvas.height; // Coordenada y escalada al tamaño del canvas
+        const z = point.z; // Profundidad
+  
+        if (indicesToSkip.includes(index)) {
+          continue;
+        }
+  
+        // Asegúrate de que el índice no exceda la longitud del modelo de referencia
+        if (index >= this.selectedModel.coordenadas.landmarks.length) {
+          console.warn(`El índice ${index} excede el modelo de referencia`);
+          continue;
+        }
+  
+        const modelPoint = this.selectedModel.coordenadas.landmarks[index];
+        const tolerance = 40; // Define la tolerancia para x e y
+  
+        // Calcular diferencias
+        const diffX = x - modelPoint.x;
+        const diffY = y - modelPoint.y;
+  
+        // Imprimir diferencias
+        console.log(`Index: ${index}, Capturado - X: ${x}, Y: ${y}; Modelo - X: ${modelPoint.x}, Y: ${modelPoint.y}; Diferencia - X: ${diffX}, Y: ${diffY}`);
+
+  
+        // Comparar las coordenadas con el rango de tolerancia
+        const isXInRange = Math.abs(diffX) <= tolerance;
+        const isYInRange = Math.abs(diffY) <= tolerance;
+  
+        // Contar errores si alguna coordenada está fuera del rango
+        if (!(isXInRange && isYInRange)) {
+          this.errorsPose += 1;
+          this.errorsPosePoints = this.errorsPosePoints + ` Index: ${index} -`;
+        }
+  
+        console.log(`Index: ${index}, x=${x}, y=${y}, z=${z}`);
+      }
+      console.log('Total de Errores: ' + this.errorsPose);
+      console.log('Errores: ' + this.errorsPose + ' Points: ' + this.errorsPosePoints);
+      if (this.errorsPose <= 3) {
+        this.statusPose = 'Buena postura';
+        this.FooterColor = 'success';
+      } else {
+        this.statusPose = 'Mala postura';
+        this.FooterColor = 'warning';
+      }
+  
       this.drawingUtils.drawLandmarks(landmark, {
         radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
       });
       this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS);
     }
-
+  
     this.canvasCtx.restore();
-  }
+  }
+  
+
+  private getJsonModels(){
+    this.http.get('assets/mediapipe/pattern/patterns.json').subscribe(
+      data => {
+        this.jsonData = data;
+        this.models = Object.keys(this.jsonData).map(key => ({ name: key, coordenadas: this.jsonData[key] }));
+        console.log(this.models);
+      },
+      error => {
+        console.error('Error al cargar el archivo JSON:', error);
+      }
+    );
+  }
+
+  onModelSelect(selectedModel: any, imageUrl: string) {
+    console.log('Modelo seleccionado:', selectedModel);
+    console.log('URL de la imagen:', imageUrl);
+  
+    // Puedes asignar el modelo y la URL a propiedades de la clase si es necesario
+    this.selectedModel = selectedModel;
+    this.dynamicImageUrl = imageUrl;
+  }
 }
