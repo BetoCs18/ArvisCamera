@@ -1,7 +1,7 @@
 import { Component, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
 import { FilesetResolver, PoseLandmarker, DrawingUtils, PoseLandmarkerResult } from '@mediapipe/tasks-vision';
 import { Filesystem, Directory } from '@capacitor/filesystem';
-import { Platform } from '@ionic/angular';
+import { IonButton, Platform } from '@ionic/angular';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import FFmpegStream from 'src/plugins/ffmpeg-stream.plugin';
@@ -28,7 +28,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   intervalId: any;
   lastImageData: string | null = null;
   rtspUrl: string = 'rtsp://192.168.1.18/1/h264major';
-
+  startedStream: boolean = false;
 
   jsonData :any;
   selectedModel: any = null;
@@ -90,12 +90,26 @@ export class StreamingFfmpegPage implements AfterViewInit  {
 
   async startStream() {
     this.startImageRefresh();
+    this.startedStream = true;
     try {
       const result = await FFmpegStream.startStream({ rtspUrl: this.rtspUrl });
       this.httpStreamUrl = result.httpUrl;
       console.log('Respuesta: ',this.httpStreamUrl);
     } catch (error) {
       console.error('Error al iniciar la transmisión:', error);
+    }
+  }
+
+  async cancelStream() {
+    console.log('Entro a stop stream');
+    try{
+      this.startedStream = false;
+      await FFmpegStream.stopStream();
+      this.stopImageRefresh();
+      this.dynamicImageUrl = '/assets/Portada_Fondo_-_Camara.png';
+      console.log('Transmisión detenida');
+    }catch(error){
+      console.error('Error al detener la transmisión: ', error);
     }
   }
 
@@ -199,7 +213,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   private async startImageRefresh() {
     // Ejecuta el refresco de imagen a intervalos
     this.getJsonModels();
-    setInterval(async () => {
+    this.intervalId = setInterval(async () => {
       const imageElement = await this.getImageUrl();
       if (imageElement) {
         this.dynamicImageUrl = this.sanitizer.bypassSecurityTrustUrl(`${imageElement.src}`);
@@ -213,6 +227,13 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         }
       }
     }, 1000 / 20); // Frecuencia de actualización ajustable
+  }
+
+  stopImageRefresh(){
+    if(this.intervalId){
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
   }
 
   private onResults(results: PoseLandmarkerResult) {

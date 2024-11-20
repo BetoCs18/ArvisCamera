@@ -5,7 +5,7 @@
       <ion-label position="floating">URL de la transmisión RTSP</ion-label>
       <ion-input [(ngModel)]="rtspUrl" name="rtspUrl" required></ion-input>
     </ion-item>
-  
+
     <ion-list>
       <ion-item>
         <ion-select
@@ -18,9 +18,10 @@
         </ion-select>
       </ion-item>
     </ion-list>
-    
+
     <!-- Botón para iniciar la transmisión -->
-    <ion-button expand="full" type="submit" [disabled]="!selectedModel">Iniciar Transmisión</ion-button>
+    <ion-button color="primary" expand="full" type="submit" [disabled]="!selectedModel" *ngIf="!startedStream">Iniciar Transmisión</ion-button>
+    <ion-button color="danger" expand="full" (click)="cancelStream()" *ngIf="startedStream">Cancelar Transmisión</ion-button>
   </form>
 
   <div #contentDiv class="canvas_container">

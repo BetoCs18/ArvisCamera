@@ -28,7 +28,7 @@ public class FFmpegStreamPlugin extends Plugin{
       return;
     }
 
-    stopStream();
+    stopStream(null);
 
     // Comando FFmpeg para convertir RTSP a HLS (HTTP Live Streaming)
     String ffmpegCommand = "-y -i " + rtspUrl +
@@ -38,10 +38,12 @@ public class FFmpegStreamPlugin extends Plugin{
                             " -q:v 2 " +
                             outputFilePath;
 
+    Log.d("FFmpegStream", "Inicia sesión");
     FFmpegSession session = FFmpegKit.executeAsync(ffmpegCommand, sessionResult -> {
       if (ReturnCode.isSuccess(sessionResult.getReturnCode())) {
         call.setKeepAlive(true);
         JSObject result = new JSObject();
+        Log.d("FFmpegStream", "Entro a JSObject");
         result.put("httpUrl", relativePath);
         call.resolve(result);
       } else {
@@ -50,30 +52,23 @@ public class FFmpegStreamPlugin extends Plugin{
     });
 
     setSession(session);
-    /* Ejecuta el comando FFmpeg de forma asíncrona
-    FFmpegKit.executeAsync(ffmpegCommand, session -> {
-      if (ReturnCode.isSuccess(session.getReturnCode())) {
-        JSObject result = new JSObject();
-        result.put("httpUrl", relativePath);
-        call.resolve(result);
-      } else {
-        call.reject("Error al iniciar transmisión: " + session.getFailStackTrace());
-      }
-    });*/
   }
 
   @PluginMethod
-  public void stopStream(){
+  public void stopStream(PluginCall call){
     if (getSession() != null) {
       getSession().cancel();
       clearSession();
       notifySessionStopped();
     }
+    if (call != null){
+      call.resolve();
+    }
   }
 
   @PluginMethod
   public void pauseStream(PluginCall call) {
-    stopStream(); // Detener la transmisión
+    stopStream(null); // Detener la transmisión
     call.resolve(); // Confirmar la pausa a Angular
   }
 
