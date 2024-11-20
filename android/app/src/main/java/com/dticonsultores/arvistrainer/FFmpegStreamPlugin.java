@@ -1,12 +1,14 @@
 package com.dticonsultores.arvistrainer;
 
 import com.arthenica.ffmpegkit.FFmpegKit;
+import com.arthenica.ffmpegkit.FFmpegSession;
 import com.arthenica.ffmpegkit.ReturnCode;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PluginMethod;
+import android.util.Log;
 
 import java.io.File;
 
@@ -16,36 +18,39 @@ public class FFmpegStreamPlugin extends Plugin{
   @PluginMethod
   public void startStream(PluginCall call) {
     String rtspUrl = call.getString("rtspUrl");
-    //String outputHttpUrl = "http://localhost:8080/live/stream.m3u8"; // URL de salida HTTP;
     File cacheDir = getContext().getCacheDir();
     String relativePath = "live/stream.jpg";
     File outputfile = new File(cacheDir, relativePath);
     String outputFilePath = outputfile.getAbsolutePath();
-
-    //String outputPath = "/storage/emulated/0/Download/live/";
-    //String outputFile = outputPath + "stream.jpg";
 
     if (rtspUrl == null ) {
       call.reject("La URL RTSP es necesaria.");
       return;
     }
 
-    /*File outputDir = new File(outputPath);
-    if (!outputDir.exists()) {
-      outputDir.mkdirs();
-    }*/
+    stopStream();
 
     // Comando FFmpeg para convertir RTSP a HLS (HTTP Live Streaming)
-    //String ffmpegCommand = "-i " + rtspUrl + " -f hls -hls_time 2 -hls_list_size 5 -hls_flags delete_segments " + outputHttpUrl;
-    //String ffmpegCommand = "-i " + rtspUrl + " -c:v libx264 -preset ultrafast -f hls -hls_time 2 -hls_list_size 5 -hls_flags delete_segments " + outputHttpUrl;
     String ffmpegCommand = "-y -i " + rtspUrl +
                             " -s 1024x768" +
                             " -vf fps=20" +
                             " -update 1" +
-                            " -q:v 2" +
-                            " " + outputFilePath;
+                            " -q:v 2 " +
+                            outputFilePath;
 
-    // Ejecuta el comando FFmpeg de forma asíncrona
+    FFmpegSession session = FFmpegKit.executeAsync(ffmpegCommand, sessionResult -> {
+      if (ReturnCode.isSuccess(sessionResult.getReturnCode())) {
+        call.setKeepAlive(true);
+        JSObject result = new JSObject();
+        result.put("httpUrl", relativePath);
+        call.resolve(result);
+      } else {
+        call.reject("Error al iniciar transmisión: " + sessionResult.getFailStackTrace());
+      }
+    });
+
+    setSession(session);
+    /* Ejecuta el comando FFmpeg de forma asíncrona
     FFmpegKit.executeAsync(ffmpegCommand, session -> {
       if (ReturnCode.isSuccess(session.getReturnCode())) {
         JSObject result = new JSObject();
@@ -54,6 +59,43 @@ public class FFmpegStreamPlugin extends Plugin{
       } else {
         call.reject("Error al iniciar transmisión: " + session.getFailStackTrace());
       }
-    });
+    });*/
+  }
+
+  @PluginMethod
+  public void stopStream(){
+    if (getSession() != null) {
+      getSession().cancel();
+      clearSession();
+      notifySessionStopped();
+    }
+  }
+
+  @PluginMethod
+  public void pauseStream(PluginCall call) {
+    stopStream(); // Detener la transmisión
+    call.resolve(); // Confirmar la pausa a Angular
+  }
+
+  // Métodos auxiliares para gestionar la sesión
+  private FFmpegSession currentSession;
+
+  private void setSession(FFmpegSession session) {
+    this.currentSession = session;
+  }
+
+  private FFmpegSession getSession() {
+    return this.currentSession;
+  }
+
+  private void clearSession() {
+    this.currentSession = null;
+  }
+
+  // Método para notificar que la sesión fue detenida
+  private void notifySessionStopped() {
+    JSObject result = new JSObject();
+    result.put("message", "Stream detenido");
+    notifyListeners("streamStopped", result);
   }
 }

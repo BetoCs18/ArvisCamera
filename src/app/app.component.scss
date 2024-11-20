@@ -5,8 +5,9 @@
     height: 5rem !important;
 }
 .logo{
-    font-size: 2rem;
+    //font-size: 20vw;
     font-weight: 800;
     color: deepskyblue;
+    text-align: center;
+    font-size: clamp(20px, 10vw, 48px);
 }
-  

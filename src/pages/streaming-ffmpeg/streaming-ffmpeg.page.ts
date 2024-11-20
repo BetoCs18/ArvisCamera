@@ -19,11 +19,10 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   @ViewChild('inputImage', {static: true}) inputImage!: ElementRef<HTMLImageElement>;
 
   outputCanvas!: HTMLCanvasElement;
-
+  private resizeObserver: ResizeObserver | null = null;
   private canvasCtx!: CanvasRenderingContext2D;
   httpStreamUrl: string | null = null;
   poseLandmarker!: PoseLandmarker;
-  runnungMode = "IMAGE";
   drawingUtils!: DrawingUtils;
   dynamicImageUrl: SafeUrl | null = '../assets/Portada_Fondo_-_Camara.png';
   intervalId: any;
@@ -42,35 +41,50 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   constructor(public sanitizer: DomSanitizer, private platform: Platform, private http: HttpClient) {}
 
   ngAfterViewInit() {
-    this.initializeApp();
-    setTimeout(() => {
-      this.initializePoseDetection();
-      this.getJsonModels();
-    }, 500)
+    this.initResizeObserver();
+    this.getJsonModels();
   }
 
-  initializeApp() {
-    this.platform.ready().then(() => {
-      this.createCacheFolder();
-    });
+  initResizeObserver(){
+    if (this.inputImage){
+      this.resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries){
+          const {width, height} = entry.contentRect;
+          console.log(`Tamaño de la imagen: ${width}px x ${height}px`);
+          this.onImageLoad();
+        }
+      });
+      this.resizeObserver.observe(this.inputImage.nativeElement);
+    }
   }
 
   onImageLoad(){
-    this.outputCanvas = document.createElement('canvas');
-    this.outputCanvas.width = this.inputImage.nativeElement.offsetWidth;
-    this.outputCanvas.height = this.inputImage.nativeElement.offsetHeight;
-    this.outputCanvas.style.position = 'absolute';
-    this.outputCanvas.style.left = '0';
-    this.outputCanvas.style.top = '0';
-    this.outputCanvas.style.zIndex = '3';
-    this.outputCanvas.style.pointerEvents = 'none';
-    this.contentDiv.nativeElement.appendChild(this.outputCanvas);
-    const context = this.outputCanvas.getContext('2d');
-    if (context) {
-      this.canvasCtx = context;
-      this.drawingUtils = new DrawingUtils(this.canvasCtx);
-    } else {
-      console.error('Error: no se pudo obtener el contexto del canvas');
+    if(!this.outputCanvas){
+      console.log("Creando canvas");
+      this.outputCanvas = document.createElement('canvas');
+      this.outputCanvas.width = this.inputImage.nativeElement.offsetWidth;
+      this.outputCanvas.height = this.inputImage.nativeElement.offsetHeight;
+      this.outputCanvas.style.position = 'absolute';
+      this.outputCanvas.style.left = '0';
+      this.outputCanvas.style.top = '0';
+      this.outputCanvas.style.zIndex = '3';
+      this.outputCanvas.style.pointerEvents = 'none';
+      this.contentDiv.nativeElement.appendChild(this.outputCanvas);
+    }else{
+      this.outputCanvas.width = this.inputImage.nativeElement.offsetWidth;
+      this.outputCanvas.height = this.inputImage.nativeElement.offsetHeight;
+    }
+    console.log("Canvas creado");
+    if(this.outputCanvas.height != 0){
+      const context = this.outputCanvas.getContext('2d');
+      if (context) {
+        this.canvasCtx = context;
+        this.drawingUtils = new DrawingUtils(this.canvasCtx);
+        this.initializePoseDetection();
+      } else {
+        console.error('Error: no se pudo obtener el contexto del canvas');
+      }
+      this.resizeObserver?.disconnect();
     }
   }
 
@@ -85,21 +99,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     }
   }
 
-  async createCacheFolder() {
-    try {
-      await Filesystem.mkdir({
-        path: 'live', // Nombre de la carpeta que quieres crear
-        directory: Directory.Cache, // Ubicación en la carpeta de caché de la app
-        recursive: true,
-      });
-      console.log('Carpeta creada en caché');
-    } catch (error) {
-      console.error('Error al crear la carpeta', error);
-    }
-  }
-
   private async initializePoseDetection() {
-    this.onImageLoad();
     console.log('Inicializa pose');
     const resultGPU = await this.createModelGPU();
     if (!resultGPU) {
@@ -129,7 +129,12 @@ export class StreamingFfmpegPage implements AfterViewInit  {
             modelAssetPath: "assets/mediapipe/models/pose_landmarker_lite.task",
             delegate: "GPU"
           },
-          numPoses: 1
+          runningMode: 'IMAGE',
+          numPoses: 1,
+          minPoseDetectionConfidence: 0.6,
+          minPosePresenceConfidence: 0.6,
+          minTrackingConfidence: 0.6,
+          outputSegmentationMasks: false
         }
       )
       return true;
@@ -152,7 +157,12 @@ export class StreamingFfmpegPage implements AfterViewInit  {
             modelAssetPath: "assets/mediapipe/models/pose_landmarker_lite.task",
             delegate: "CPU"
           },
-          numPoses: 1
+          runningMode: 'IMAGE',
+          numPoses: 1,
+          minPoseDetectionConfidence: 0.6,
+          minPosePresenceConfidence: 0.6,
+          minTrackingConfidence: 0.6,
+          outputSegmentationMasks: false
         }
       )
       return true;
@@ -211,52 +221,52 @@ export class StreamingFfmpegPage implements AfterViewInit  {
       console.error('Modelo de referencia no válido o no seleccionado.');
       return;
     }
-  
+
     if (!this.canvasCtx) return;
     this.canvasCtx.save();
     this.canvasCtx.clearRect(0, 0, this.outputCanvas.width, this.outputCanvas.height);
-  
+
     for (const landmark of results.landmarks) {
       this.errorsPose = 0;
       this.errorsPosePoints = '';
-  
+
       for (let index = 11; index < landmark.length; index++) {
         const point = landmark[index];
         const x = point.x * this.outputCanvas.width; // Coordenada x escalada al tamaño del canvas
         const y = point.y * this.outputCanvas.height; // Coordenada y escalada al tamaño del canvas
         const z = point.z; // Profundidad
-  
+
         if (indicesToSkip.includes(index)) {
           continue;
         }
-  
+
         // Asegúrate de que el índice no exceda la longitud del modelo de referencia
         if (index >= this.selectedModel.coordenadas.landmarks.length) {
           console.warn(`El índice ${index} excede el modelo de referencia`);
           continue;
         }
-  
+
         const modelPoint = this.selectedModel.coordenadas.landmarks[index];
         const tolerance = 40; // Define la tolerancia para x e y
-  
+
         // Calcular diferencias
         const diffX = x - modelPoint.x;
         const diffY = y - modelPoint.y;
-  
+
         // Imprimir diferencias
         console.log(`Index: ${index}, Capturado - X: ${x}, Y: ${y}; Modelo - X: ${modelPoint.x}, Y: ${modelPoint.y}; Diferencia - X: ${diffX}, Y: ${diffY}`);
 
-  
+
         // Comparar las coordenadas con el rango de tolerancia
         const isXInRange = Math.abs(diffX) <= tolerance;
         const isYInRange = Math.abs(diffY) <= tolerance;
-  
+
         // Contar errores si alguna coordenada está fuera del rango
         if (!(isXInRange && isYInRange)) {
           this.errorsPose += 1;
           this.errorsPosePoints = this.errorsPosePoints + ` Index: ${index} -`;
         }
-  
+
         console.log(`Index: ${index}, x=${x}, y=${y}, z=${z}`);
       }
       console.log('Total de Errores: ' + this.errorsPose);
@@ -268,16 +278,16 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         this.statusPose = 'Mala postura';
         this.FooterColor = 'warning';
       }
-  
+
       this.drawingUtils.drawLandmarks(landmark, {
         radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
       });
       this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS);
     }
-  
+
     this.canvasCtx.restore();
   }
-  
+
 
   private getJsonModels(){
     this.http.get('assets/mediapipe/pattern/patterns.json').subscribe(
@@ -295,7 +305,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   onModelSelect(selectedModel: any, imageUrl: string) {
     console.log('Modelo seleccionado:', selectedModel);
     console.log('URL de la imagen:', imageUrl);
-  
+
     // Puedes asignar el modelo y la URL a propiedades de la clase si es necesario
     this.selectedModel = selectedModel;
     this.dynamicImageUrl = imageUrl;
