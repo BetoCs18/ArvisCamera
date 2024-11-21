@@ -12,6 +12,10 @@ const routes: Routes = [
         loadChildren: () => import('../streaming-ffmpeg/streaming-ffmpeg.module').then(m => m.StreamingFfmpegPageModule)
       },
       {
+        path: 'rutinas',
+        loadChildren: () => import('../rutinas/rutinas.module').then(m => m.RutinasPageModule)
+      },
+      {
         path: '',
         redirectTo: 'streaming',
         pathMatch: 'full'
