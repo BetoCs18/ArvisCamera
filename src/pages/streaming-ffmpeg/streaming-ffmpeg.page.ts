@@ -105,6 +105,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
       this.statusPose = 'Estatus de la Postura';
       this.FooterColor = "primary";
       this.canvasCtx.clearRect(0, 0, this.outputCanvas.width, this.outputCanvas.height);
+      this.startedStream = false;
       console.error('Error al iniciar la transmisión:', error);
     }
   }
