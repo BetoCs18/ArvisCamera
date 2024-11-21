@@ -1,75 +1,75 @@
 #container {
-    text-align: center;
+  text-align: center;
 
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-  }
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
 
-  #container strong {
-    font-size: 20px;
-    line-height: 26px;
-  }
+#container strong {
+  font-size: 20px;
+  line-height: 26px;
+}
 
-  #container p {
-    font-size: 16px;
-    line-height: 22px;
+#container p {
+  font-size: 16px;
+  line-height: 22px;
 
-    color: #8c8c8c;
+  color: #8c8c8c;
 
-    margin: 0;
-  }
+  margin: 0;
+}
 
-  #container a {
-    text-decoration: none;
-  }
+#container a {
+  text-decoration: none;
+}
 
-  .canvas_container {
-    width: 100%;
-    position: relative;
-    float: left;
-  }
+.canvas_container {
+  width: 100%;
+  position: relative;
+  float: left;
+}
 
-  .output_canvas {
-    z-index: 1;
-    position: absolute;
-  }
+.output_canvas {
+  z-index: 1;
+  position: absolute;
+}
 
-  .canvas_container {
-    z-index: 0;
-    text-align: center;
-  }
+.canvas_container {
+  z-index: 0;
+  text-align: center;
+}
 
-  // .canvas_container img {
-  //   width: 640px; /* or any desired fixed width */
-  //   height: 427px; /* or any desired fixed height */
-  //   object-fit: cover; /* Optional: Maintains aspect ratio within the given dimensions */
-  // }
+// .canvas_container img {
+//   width: 640px; /* or any desired fixed width */
+//   height: 427px; /* or any desired fixed height */
+//   object-fit: cover; /* Optional: Maintains aspect ratio within the given dimensions */
+// }
 
-  ion-fab-button::part(native) {
-    background-color: #2309e8;
-    border-radius: 10px;
-    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-    color: white;
-  }
+ion-fab-button::part(native) {
+  background-color: #2309e8;
+  border-radius: 10px;
+  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+  color: white;
+}
 
-  ion-fab-button::part(native) {
-    background-color: #2309e8;
-    border-radius: 10px;
-    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-    color: white;
-  }
+ion-fab-button::part(native) {
+  background-color: #2309e8;
+  border-radius: 10px;
+  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+  color: white;
+}
 
 
-  .full-width-item {
-    width: 100%;
-  }
-  ion-select {
-    width: 100%;
-  }
+.full-width-item {
+  width: 100%;
+}
+ion-select {
+  width: 100%;
+}
 
-  ion-button{
-    border-radius: 10px;
-  }
+ion-button{
+  border-radius: 10px;
+}
