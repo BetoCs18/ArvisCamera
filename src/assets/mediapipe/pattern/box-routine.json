@@ -1,112 +1,78 @@
 {
-  "Brazos-Extendidos": {
-    "imageName": "brazos_extendidos.jpg",
+  "Postura-Box-1": {
+    "imageName": "assets/postures/box/box2.png",
+    "instruction": "Mantén el compás abierto y levanta los puños a la altura de tu rostro",
     "angles": {
       "rightElbow": {
-        "expected": 180,
+        "expected": 10,
         "points": [11, 13, 15],
         "Descripcion": "Ángulo entre el hombro derecho, el codo derecho y la muñeca derecha"
       },
       "leftElbow": {
-        "expected": 180,
+        "expected": 10,
         "points": [12, 14, 16],
         "Descripcion": "Ángulo entre el hombros izquierdo, el codo izquierdo y la muñeca izquierda"
       },
       "rightKnee": {
-        "expected": 180,
+        "expected": 175,
         "points": [23, 25, 27],
         "Descripcion": "Ángulo entre la cadera derecha, la rodilla derecha y el tobillo derecho"
       },
       "leftKnee": {
-        "expected": 180,
+        "expected": 175,
         "points": [24, 26, 28],
         "Descripcion": "Ángulo entre la cadera izquierda, la rodilla izquierda y el tobillo izquierdo"
       },
       "rightHip": {
-        "expected": 165,
+        "expected": 175,
         "points": [11, 23, 25],
         "Descripcion": "Ángulo entre el hombro derecho, la cadera derecha y la rodilla derecha"
       },
       "leftHip": {
-        "expected": 165,
+        "expected": 175,
         "points": [12, 24, 26],
         "Descripcion": "Ángulo entre el hombro izquierdo, la cadera izquierda y la rodilla izquierda"
       }
     },
-    "tolerance": 20
+    "tolerance": 10
   },
-  "Sentadilla-Sumo": {
-    "imageName": "sentadilla_sumo.jpg",
+  "Postura-Box-2": {
+    "imageName": "assets/postures/box/box3.png",
+    "instruction": "Coloca los puños a la altura de tu rostro",
     "angles": {
       "rightElbow": {
-        "expected": 160,
+        "expected": 40,
         "points": [11, 13, 15],
         "Descripcion": "Ángulo entre el hombro derecho, el codo derecho y la muñeca derecha",
         "Nota": "No relevante para esta postura, verificar si debe ser ignorado."
       },
       "leftElbow": {
-        "expected": 160,
+        "expected": 40,
         "points": [12, 14, 16],
         "Descripcion": "Ángulo entre el hombro izquierdo, el codo izquierdo y la muñeca izquierda",
         "Nota": "No relevante para esta postura, verificar si debe ser ignorado."
       },
       "rightKnee": {
-        "expected": 120,
+        "expected": 170,
         "points": [24, 26, 28],
         "Descripcion": "Ángulo de la rodilla derecha (cadera-rodilla-tobillo)"
       },
       "leftKnee": {
-        "expected": 120,
+        "expected": 150,
         "points": [23, 25, 27],
         "Descripcion": "Ángulo de la rodilla izquierda (cadera-rodilla-tobillo)"
       },
       "rightHip": {
-        "expected": 120,
+        "expected": 175,
         "points": [12, 24, 26],
         "Descripcion": "Ángulo de la cadera derecha (hombro-cadera-rodilla)"
       },
       "leftHip": {
-        "expected": 120,
+        "expected": 175,
         "points": [11, 23, 25],
         "Descripcion": "Ángulo de la cadera izquierda (hombro-cadera-rodilla)"
       }
     },
-    "tolerance": 20
-  },
-  "Guardia-Box": {
-    "imageName": "guardia_boxeo.jpg",
-    "angles": {
-      "rightElbow": {
-        "expected": 180,
-        "points": [11, 13, 15],
-        "Descripcion": "Ángulo entre el hombro derecho, el codo derecho y la muñeca derecha"
-      },
-      "leftElbow": {
-        "expected": 180,
-        "points": [12, 14, 16],
-        "Descripcion": "Ángulo entre el hombros izquierdo, el codo izquierdo y la muñeca izquierda"
-      },
-      "rightKnee": {
-        "expected": 180,
-        "points": [23, 25, 27],
-        "Descripcion": "Ángulo entre la cadera derecha, la rodilla derecha y el tobillo derecho"
-      },
-      "leftKnee": {
-        "expected": 180,
-        "points": [24, 26, 28],
-        "Descripcion": "Ángulo entre la cadera izquierda, la rodilla izquierda y el tobillo izquierdo"
-      },
-      "rightHip": {
-        "expected": 165,
-        "points": [11, 23, 25],
-        "Descripcion": "Ángulo entre el hombro derecho, la cadera derecha y la rodilla derecha"
-      },
-      "leftHip": {
-        "expected": 165,
-        "points": [12, 24, 26],
-        "Descripcion": "Ángulo entre el hombro izquierdo, la cadera izquierda y la rodilla izquierda"
-      }
-    },
-    "tolerance": 20
+    "tolerance": 10
   }
 }

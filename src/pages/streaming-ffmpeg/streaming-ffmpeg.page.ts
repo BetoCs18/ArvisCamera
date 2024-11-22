@@ -1,4 +1,4 @@
-import { Component, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, AfterViewInit, ViewChild, model } from '@angular/core';
 import { FilesetResolver, PoseLandmarker, DrawingUtils, PoseLandmarkerResult } from '@mediapipe/tasks-vision';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Platform } from '@ionic/angular';
@@ -29,6 +29,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   poseLandmarker!: PoseLandmarker;
   drawingUtils!: DrawingUtils;
   dynamicImageUrl: SafeUrl | null = '../assets/Portada_Fondo_-_Camara.png';
+  modelImageUrl: SafeUrl | null = '../assets/Portada_Fondo_-_Camara.png';
   intervalId: any;
   lastImageData: string | null = null;
   // rtspUrl: string = 'rtsp://192.168.1.18/1/h264major';
@@ -42,6 +43,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   statusPose:any = 'Estatus de la Postura';
   FooterColor:any = "primary";
   models:any;
+  step: string = '';
 
   constructor(public sanitizer: DomSanitizer, private platform: Platform, private http: HttpClient) {}
 
@@ -222,7 +224,10 @@ export class StreamingFfmpegPage implements AfterViewInit  {
 
   private async startImageRefresh() {
     // Ejecuta el refresco de imagen a intervalos
-    this.getJsonModels();
+    //this.getJsonModels();
+    this.onModelSelect(this.selectedModel.name, this.selectedModel.coordenadas.imageName);
+    console.log(this.selectedModel);
+    //this.step = this.selectedModel.coordenadas.instruction.toString();
     this.intervalId = setInterval(async () => {
       const imageElement = await this.getImageUrl();
       if (imageElement) {
@@ -247,11 +252,14 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   }
 
   private getJsonModels(){
-    this.http.get('assets/mediapipe/pattern/patterns.json').subscribe(
+    this.http.get('assets/mediapipe/pattern/box-routine.json').subscribe(
       data => {
         this.jsonData = data;
         this.models = Object.keys(this.jsonData).map(key => ({ name: key, coordenadas: this.jsonData[key] }));
-        // console.log(this.models);
+        console.log(this.models[0].coordenadas);
+        if(this.selectedModel == null){
+          this.selectedModel = this.models[0];
+        }
       },
       error => {
         console.error('Error al cargar el archivo JSON:', error);
@@ -259,65 +267,65 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     );
   }
 
-  onModelSelect(selectedModel: any, imageUrl: string) { 
+  onModelSelect(selectedModel: any, imageUrl: string) {
     // Puedes asignar el modelo y la URL a propiedades de la clase si es necesario
     this.selectedModel = selectedModel;
-    this.dynamicImageUrl = imageUrl;
+    this.modelImageUrl = imageUrl;
   }
 
   // private onResults(results: PoseLandmarkerResult) {
   //   const allowedIndices = new Set([0, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28]);
-  
+
   //   if (!this.selectedModel || !this.selectedModel.coordenadas || !this.selectedModel.coordenadas.landmarks) {
   //     console.error('Modelo de referencia no válido o no seleccionado.');
   //     return;
   //   }
-  
+
   //   if (!this.canvasCtx) return;
   //   this.canvasCtx.save();
   //   this.canvasCtx.clearRect(0, 0, this.outputCanvas.width, this.outputCanvas.height);
-  
+
   //   for (const landmark of results.landmarks) {
   //     this.errorsPose = 0;
   //     this.errorsPosePoints = '';
-  
+
   //     for (const modelPoint of this.selectedModel.coordenadas.landmarks) {
   //       const index = modelPoint.index;
-  
+
   //       // Verificar si el índice está permitido
   //       if (!allowedIndices.has(index)) {
   //         console.log('Index no permitido: ' + index);
   //         continue;
   //       }
-  
+
   //       // Obtenemos el punto correspondiente del resultado actual
   //       const point = landmark[index];
   //       const x = point.x * this.outputCanvas.width; // Coordenada x escalada al tamaño del canvas
   //       const y = point.y * this.outputCanvas.height; // Coordenada y escalada al tamaño del canvas
   //       const z = point.z; // Profundidad
-  
+
   //       const tolerance = 40; // Define la tolerancia para x e y
-  
+
   //       // Calcular diferencias
   //       const diffX = x - modelPoint.x;
   //       const diffY = y - modelPoint.y;
-  
+
   //       // Imprimir diferencias
   //       console.log(`Index: ${index}, Capturado - X: ${x}, Y: ${y}; Modelo - X: ${modelPoint.x}, Y: ${modelPoint.y}; Diferencia - X: ${diffX}, Y: ${diffY}`);
-  
+
   //       // Comparar las coordenadas con el rango de tolerancia
   //       const isXInRange = Math.abs(diffX) <= tolerance;
   //       const isYInRange = Math.abs(diffY) <= tolerance;
-  
+
   //       // Contar errores si alguna coordenada está fuera del rango
   //       if (!(isXInRange && isYInRange)) {
   //         this.errorsPose += 1;
   //         this.errorsPosePoints = this.errorsPosePoints + ` Index: ${index} -`;
   //       }
-  
+
   //       console.log(`Index: ${index}, x=${x}, y=${y}, z=${z}`);
   //     }
-  
+
   //     console.log('Total de Errores: ' + this.errorsPose);
   //     console.log('Errores: ' + this.errorsPose + ' Points: ' + this.errorsPosePoints);
   //     if (this.errorsPose <= 3) {
@@ -327,24 +335,24 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   //       this.statusPose = 'Mala postura';
   //       this.FooterColor = 'warning';
   //     }
-  
+
   //     this.drawingUtils.drawLandmarks(landmark, {
   //       radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
   //     });
   //     this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS);
   //   }
-  
+
   //   this.canvasCtx.restore();
   // }
 
   private calculateAngle(pointA:any, pointB:any, pointC:any): number {
     const vectorBA = { x: pointA.x - pointB.x, y: pointA.y - pointB.y };
     const vectorBC = { x: pointC.x - pointB.x, y: pointC.y - pointB.y };
-  
+
     const dotProduct = vectorBA.x * vectorBC.x + vectorBA.y * vectorBC.y;
     const magnitudeBA = Math.sqrt(vectorBA.x ** 2 + vectorBA.y ** 2);
     const magnitudeBC = Math.sqrt(vectorBC.x ** 2 + vectorBC.y ** 2);
-  
+
     const angleInRadians = Math.acos(dotProduct / (magnitudeBA * magnitudeBC));
     return (angleInRadians * 180) / Math.PI; // Convertir a grados
   }
@@ -354,50 +362,50 @@ export class StreamingFfmpegPage implements AfterViewInit  {
       console.error('Modelo no seleccionado.');
       return;
     }
-  
+
     if (!this.canvasCtx) return;
-  
+
     this.canvasCtx.save();
     this.canvasCtx.clearRect(0, 0, this.outputCanvas.width, this.outputCanvas.height);
-  
+
     for (const landmark of results.landmarks) {
       this.errorsPose = 0;
       this.errorsPosePoints = '';
-  
+
       // Procesar ángulos del modelo seleccionado
       for (const [angleName, angleData] of Object.entries(this.selectedModel.coordenadas.angles) as [string, AngleData][]) {
         const [indexA, indexB, indexC] = angleData.points;
 
         // console.log("--------------Modelo----------" + this.selectedModel.name);
-  
+
         // Validar que los índices existen en los resultados de los landmarks
         if (!landmark[indexA] || !landmark[indexB] || !landmark[indexC]) {
           console.warn(`No se encontraron los puntos para calcular el ángulo ${angleName}`);
           continue;
         }
-  
+
         const pointA = landmark[indexA];
         const pointB = landmark[indexB];
         const pointC = landmark[indexC];
-  
+
         const calculatedAngle = this.calculateAngle(pointA, pointB, pointC);
         const expectedAngle = angleData.expected;
 
-  
+
         // Verificar si el ángulo está dentro de la tolerancia
         const isWithinTolerance = Math.abs(calculatedAngle - expectedAngle) <= this.selectedModel.coordenadas.tolerance;
         // console.log('isWithinTolerance: ' + isWithinTolerance);
-  
+
         if (!isWithinTolerance) {
           this.errorsPose += 1;
           this.errorsPosePoints += ` ${angleName}`;
         }
-  
+
         console.log(angleName);
         console.log(`- Obtenido: ${calculatedAngle}, Esperado: ${expectedAngle}, Diferencia: ${Math.abs(calculatedAngle - expectedAngle)}`);
-               
+
       }
-  
+
       // Establecer estado de postura basado en errores
       if (this.errorsPose <= 1) {
         this.statusPose = 'Buena postura';
@@ -406,17 +414,17 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         this.statusPose = 'Mala postura';
         this.FooterColor = 'warning';
       }
-  
+
       console.log('Total de Errores: ' + this.errorsPose + ' Color: ' + this.FooterColor);
       console.log('Errores: ' + this.errorsPose + ' Points: ' + this.errorsPosePoints);
-  
+
       // Dibujar puntos y conectores en el canvas
       this.drawingUtils.drawLandmarks(landmark, {
         radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
       });
       this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS);
     }
-  
+
     this.canvasCtx.restore();
   }
 }

@@ -1,29 +1,44 @@
-<ion-content class="ion-padding">
-  <form (ngSubmit)="startStream()">
-    <!-- Entrada para la URL de la transmisión RTSP -->
-    <ion-item>
-      <ion-label position="floating">URL de la transmisión RTSP</ion-label>
-      <ion-input [(ngModel)]="rtspUrl" name="rtspUrl" required></ion-input>
+<ion-accordion-group>
+  <ion-accordion value="first">
+    <ion-item slot="header" color="light">
+      <ion-label>Opciones</ion-label>
     </ion-item>
+    <div class="ion-padding" slot="content">
+      <form (ngSubmit)="startStream()">
+        <!-- Entrada para la URL de la transmisión RTSP -->
+        <ion-item>
+          <ion-label position="floating">URL de la transmisión</ion-label>
+          <ion-input [(ngModel)]="rtspUrl" name="rtspUrl" required></ion-input>
+        </ion-item>
 
-    <ion-list>
-      <ion-item>
-        <ion-select
-          placeholder="Selecciona un modelo"
-          (ionChange)="onModelSelect($event.detail.value, 'assets/postures/' + $event.detail.value.coordenadas.imageName)"
-          required>
-          <ion-select-option *ngFor="let model of models" [value]="model">
-            {{ model.name }}
-          </ion-select-option>
-        </ion-select>
-      </ion-item>
-    </ion-list>
 
-    <!-- Botón para iniciar la transmisión -->
-    <ion-button color="primary" expand="full" type="submit" [disabled]="!selectedModel" *ngIf="!startedStream">Iniciar Transmisión</ion-button>
-    <ion-button color="danger" expand="full" (click)="cancelStream()" *ngIf="startedStream">Cancelar Transmisión</ion-button>
-  </form>
+        <!-- <ion-list>
+          <ion-item>
+            <ion-select
+              placeholder="Selecciona un modelo"
+              (ionChange)="onModelSelect($event.detail.value, 'assets/postures/' + $event.detail.value.coordenadas.imageName)"
+              required>
+              <ion-select-option *ngFor="let model of models" [value]="model">
+                {{ model.name }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+        </ion-list> -->
 
+        <!-- Botón para iniciar la transmisión -->
+        <ion-button color="primary" expand="full" size="small" type="submit" [disabled]="!selectedModel" *ngIf="!startedStream">Iniciar Transmisión</ion-button>
+        <ion-button color="danger" expand="full" size="small" (click)="cancelStream()" *ngIf="startedStream">Cancelar Transmisión</ion-button>
+      </form>
+    </div>
+  </ion-accordion>
+</ion-accordion-group>
+<ion-content class="ion-padding">
+  <div class="canvas_container">
+    <img #modelImage [src]="modelImageUrl" alt="modelImage" style="display: block;" width="100%">
+  </div>
+  <ion-card color="primary" class="ion-padding">
+    <ion-text>{{step}}</ion-text>
+  </ion-card>
   <div #contentDiv class="canvas_container">
     <img #inputImage [src]="dynamicImageUrl" alt="dynamicImageUrl" style="display: block;" width="100%"/>
   </div>
