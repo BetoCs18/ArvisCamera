@@ -1,5 +1,5 @@
-import { Component, ElementRef, AfterViewInit, ViewChild, model } from '@angular/core';
-import { FilesetResolver, PoseLandmarker, DrawingUtils, PoseLandmarkerResult } from '@mediapipe/tasks-vision';
+import { Component, ElementRef, AfterViewInit, ViewChild} from '@angular/core';
+import { FilesetResolver, PoseLandmarker, DrawingUtils, PoseLandmarkerResult, DrawingOptions } from '@mediapipe/tasks-vision';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Platform } from '@ionic/angular';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
@@ -21,6 +21,7 @@ interface AngleData {
 export class StreamingFfmpegPage implements AfterViewInit  {
   @ViewChild('contentDiv', { static: true }) contentDiv!: ElementRef<HTMLDivElement>;
   @ViewChild('inputImage', {static: true}) inputImage!: ElementRef<HTMLImageElement>;
+  //@ViewChild( 'modal', { static: true}) modal!: ElementRef<IonModal>;
 
   outputCanvas!: HTMLCanvasElement;
   private resizeObserver: ResizeObserver | null = null;
@@ -28,6 +29,8 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   httpStreamUrl: string | null = null;
   poseLandmarker!: PoseLandmarker;
   drawingUtils!: DrawingUtils;
+  drawingOptionsWarning!: DrawingOptions;
+  drawingOptinsSuccess!: DrawingOptions;
   dynamicImageUrl: SafeUrl | null = '../assets/Portada_Fondo_-_Camara.png';
   modelImageUrl: SafeUrl | null = '../assets/Portada_Fondo_-_Camara.png';
   intervalId: any;
@@ -42,8 +45,13 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   errorsPosePoints:any = '';
   statusPose:any = 'Estatus de la Postura';
   FooterColor:any = "primary";
-  models:any;
+  models!:any[];
   step: string = '';
+  stepNum: number = 0;
+  open = false;
+  progress = 0;
+  modalProgress = 1;
+  progressColor: string = 'danger';
 
   constructor(public sanitizer: DomSanitizer, private platform: Platform, private http: HttpClient) {}
 
@@ -98,6 +106,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   async startStream() {
     this.startImageRefresh();
     this.startedStream = true;
+    this.open = true;
     try {
       const result = await FFmpegStream.startStream({ rtspUrl: this.rtspUrl });
       this.httpStreamUrl = result.httpUrl;
@@ -108,6 +117,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
       this.FooterColor = "primary";
       this.canvasCtx.clearRect(0, 0, this.outputCanvas.width, this.outputCanvas.height);
       this.startedStream = false;
+      this.open = false;
       console.error('Error al iniciar la transmisión:', error);
     }
   }
@@ -225,9 +235,11 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   private async startImageRefresh() {
     // Ejecuta el refresco de imagen a intervalos
     //this.getJsonModels();
-    this.onModelSelect(this.selectedModel.name, this.selectedModel.coordenadas.imageName);
-    console.log(this.selectedModel);
-    //this.step = this.selectedModel.coordenadas.instruction.toString();
+    this.openModal();
+    setTimeout(() => {
+      this.closeModal();
+    }, 7000);
+    this.onModelSelect(this.selectedModel);
     this.intervalId = setInterval(async () => {
       const imageElement = await this.getImageUrl();
       if (imageElement) {
@@ -252,13 +264,14 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   }
 
   private getJsonModels(){
-    this.http.get('assets/mediapipe/pattern/box-routine.json').subscribe(
+    this.http.get('assets/mediapipe/pattern/test-angle-routine.json').subscribe(
       data => {
         this.jsonData = data;
         this.models = Object.keys(this.jsonData).map(key => ({ name: key, coordenadas: this.jsonData[key] }));
         console.log(this.models[0].coordenadas);
         if(this.selectedModel == null){
-          this.selectedModel = this.models[0];
+          this.selectedModel = this.models[this.stepNum];
+          console.log(this.selectedModel.coordenadas.instruction);
         }
       },
       error => {
@@ -267,10 +280,45 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     );
   }
 
-  onModelSelect(selectedModel: any, imageUrl: string) {
+  changeExercise(){
+    this.stopImageRefresh();
+    this.openSuccessModal();
+    setTimeout(() =>{
+      this.closeSuccessModal();
+    },2000);
+    this.progress = 0;
+    this.stepNum++;
+    if(this.stepNum < this.models.length){
+      this.selectedModel = this.models[this.stepNum];
+      this.startImageRefresh();
+    }
+  }
+
+  async openModal(){
+    const modal = document.querySelector('ion-modal#example-modal') as HTMLIonModalElement;
+    await modal?.present();
+  }
+
+  async closeModal(){
+    const modal = document.querySelector('ion-modal#example-modal') as HTMLIonModalElement;
+    await modal?.dismiss();
+  }
+
+  async openSuccessModal(){
+    const modal = document.querySelector('ion-modal#success-modal') as HTMLIonModalElement;
+    await modal?.present();
+  }
+
+  async closeSuccessModal(){
+    const modal = document.querySelector('ion-modal#success-modal') as HTMLIonModalElement;
+    await modal?.dismiss();
+  }
+
+  onModelSelect(selectedModel: any) {
     // Puedes asignar el modelo y la URL a propiedades de la clase si es necesario
-    this.selectedModel = selectedModel;
-    this.modelImageUrl = imageUrl;
+    //this.selectedModel = selectedModel;
+    this.modelImageUrl = selectedModel.coordenadas.imageName;
+    this.step = selectedModel.coordenadas.instruction;
   }
 
   // private onResults(results: PoseLandmarkerResult) {
@@ -362,6 +410,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
       console.error('Modelo no seleccionado.');
       return;
     }
+    console.log(this.selectedModel);
 
     if (!this.canvasCtx) return;
 
@@ -401,28 +450,48 @@ export class StreamingFfmpegPage implements AfterViewInit  {
           this.errorsPosePoints += ` ${angleName}`;
         }
 
-        console.log(angleName);
-        console.log(`- Obtenido: ${calculatedAngle}, Esperado: ${expectedAngle}, Diferencia: ${Math.abs(calculatedAngle - expectedAngle)}`);
+        //console.log(angleName);
+        //console.log(`- Obtenido: ${calculatedAngle}, Esperado: ${expectedAngle}, Diferencia: ${Math.abs(calculatedAngle - expectedAngle)}`);
 
       }
 
       // Establecer estado de postura basado en errores
       if (this.errorsPose <= 1) {
         this.statusPose = 'Buena postura';
-        this.FooterColor = 'success';
+        //this.FooterColor = 'success';
+        this.progress = this.progress + 0.025;
+        if(this.progress > 0.5){
+          this.progressColor = 'warning';
+        }
+        if(this.progress > 0.75){
+          this.progressColor = 'success';
+        }
+        if(this.progress >= 1){
+          this.changeExercise();
+        }
+        // Dibujar puntos y conectores en el canvas
+        this.drawingUtils.drawLandmarks(landmark, {color: '#00FF00',
+          fillColor: '#00FF00',
+          lineWidth: 2,
+          radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1),
+        });
+        this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: '#00FF00', fillColor: '#00FF00', lineWidth: 1.5, radius: 3.5});
       } else {
         this.statusPose = 'Mala postura';
-        this.FooterColor = 'warning';
+        //this.FooterColor = 'warning';
+        this.progress = 0;
+        this.progressColor = 'danger';
+        // Dibujar puntos y conectores en el canvas
+        this.drawingUtils.drawLandmarks(landmark, {color: '#FF0000',
+          fillColor: '#FF0000',
+          lineWidth: 2,
+          radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
+        });
+        this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: '#FF0000', fillColor: '#FF0000', lineWidth: 1.5, radius: 3.5});
       }
 
-      console.log('Total de Errores: ' + this.errorsPose + ' Color: ' + this.FooterColor);
-      console.log('Errores: ' + this.errorsPose + ' Points: ' + this.errorsPosePoints);
-
-      // Dibujar puntos y conectores en el canvas
-      this.drawingUtils.drawLandmarks(landmark, {
-        radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
-      });
-      this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS);
+      //console.log('Total de Errores: ' + this.errorsPose + ' Color: ' + this.FooterColor);
+      //console.log('Errores: ' + this.errorsPose + ' Points: ' + this.errorsPosePoints);
     }
 
     this.canvasCtx.restore();

@@ -33,21 +33,44 @@
   </ion-accordion>
 </ion-accordion-group>
 <ion-content class="ion-padding">
-  <div class="canvas_container">
-    <img #modelImage [src]="modelImageUrl" alt="modelImage" style="display: block;" width="100%">
-  </div>
-  <ion-card color="primary" class="ion-padding">
-    <ion-text>{{step}}</ion-text>
+  <ion-card color="primary" class="ion-padding" button="true" detail="false">
+    <ion-text style="text-align: center;">{{step}}</ion-text>
   </ion-card>
   <div #contentDiv class="canvas_container">
     <img #inputImage [src]="dynamicImageUrl" alt="dynamicImageUrl" style="display: block;" width="100%"/>
+    <ion-button id="open-info" shape="round" style="position: absolute; right: 0; top: 0; z-index: 2;"><ion-icon name="information-circle-outline" color="dark"></ion-icon></ion-button>
+    <ion-modal id="example-modal" #modal trigger="open-info">
+      <ng-template>
+        <div class="wrapper">
+          <h1 style="text-align: center;">Información del ejecricio</h1>
+          <img #modelImage [src]="modelImageUrl" class="ion-padding" alt="modelImage" style="display: block;" width="100%">
+          <ion-card color="primary" class="ion-padding" button="true" detail="false" (click)="modal.dismiss()">
+            <ion-text style="text-align: center;">{{step}}</ion-text>
+          </ion-card>
+        </div>
+        <ion-progress-bar #modalProgressBar [value]="modalProgress" color="primary"></ion-progress-bar>
+      </ng-template>
+    </ion-modal>
+    <ion-modal id="success-modal" #success>
+      <ng-template>
+        <div class="wrapper">
+          <ion-card color="success" class="ion-padding" button="true" detail="false" (click)="modal.dismiss()">
+            <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+          </ion-card>
+        </div>
+        <ion-progress-bar #modalProgressBar [value]="modalProgress" color="primary"></ion-progress-bar>
+      </ng-template>
+    </ion-modal>
+  </div>
+  <div class="progress-value" *ngIf="open">
+    <ion-progress-bar #progressBar [value]="progress" color="{{progressColor}}"></ion-progress-bar>
+    <span>{{statusPose}}</span>
   </div>
 </ion-content>
 
 
 
 <ion-footer>
-  <ion-toolbar color="{{FooterColor}}">
-    <ion-title>{{statusPose}}</ion-title>
-  </ion-toolbar>
+  <!-- <ion-toolbar color="{{FooterColor}}">
+  </ion-toolbar> -->
 </ion-footer>
