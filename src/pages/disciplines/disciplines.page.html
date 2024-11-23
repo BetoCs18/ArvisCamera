@@ -1,0 +1,16 @@
+<div class="card-container">
+  <ion-card class="custom-card" *ngFor="let sport of sports" (click)="navigateTo(sport.name)">
+    <div class="card-content">
+      <img class="card-image" alt="Calentamiento" src="{{sport.datos.image}}" />
+      <div class="text-content">
+        <ion-card-header>
+          <ion-card-title>{{sport.datos.title}}</ion-card-title>
+          <ion-card-subtitle>{{sport.datos.subtitle}}</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          {{sport.datos.description}}
+        </ion-card-content>
+      </div>
+    </div>
+  </ion-card>
+</div>

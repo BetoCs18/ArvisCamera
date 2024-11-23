@@ -1,0 +1,231 @@
+{
+    "calentamiento": {
+      "title": "Calentamiento",
+      "subtitle": "Preparación física",
+      "description": "Realiza ejercicios básicos para preparar tu cuerpo y evitar lesiones. Dedica al menos 10 minutos para activar tus músculos y mejorar la circulación.",
+      "image": "https://pymstatic.com/31996/conversions/tipos-de-calentamiento-deportivo-small-16_9.jpg",
+      "navigateTo": "calentamiento",
+      "rutinas": {
+        "principiante": {
+          "title": "Rutina de Principiante",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Icon_1_%28set_u%29.png",
+          "exercises": [
+            {
+              "name": "Estiramientos básicos",
+              "duration": "5 minutos",
+              "description": "Estira brazos, piernas y cuello para mejorar la movilidad."
+            },
+            {
+              "name": "Cardio ligero",
+              "duration": "3 minutos",
+              "description": "Caminata rápida o saltos suaves para elevar el ritmo cardíaco."
+            }
+          ]
+        },
+        "intermedio": {
+          "title": "Rutina Intermedia",
+          "image": "https://cdn-icons-png.flaticon.com/512/8068/8068073.png",
+          "exercises": [
+            {
+              "name": "Movilidad articular avanzada",
+              "duration": "4 minutos",
+              "description": "Movimientos circulares amplios en hombros, caderas y rodillas."
+            },
+            {
+              "name": "Saltos de tijera",
+              "duration": "2 minutos",
+              "description": "Ejercicio aeróbico para aumentar el ritmo cardíaco."
+            }
+          ]
+        },
+        "avanzado": {
+          "title": "Rutina Avanzada",
+          "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUSw1rccH3c_vkt_J-bhFtoIoURbQrGv-bLw&s",
+          "exercises": [
+            {
+              "name": "Burpees",
+              "duration": "2 minutos",
+              "description": "Ejercicio de cuerpo completo para elevar la intensidad."
+            },
+            {
+              "name": "Sprint estático",
+              "duration": "3 minutos",
+              "description": "Corre en el lugar con máxima velocidad."
+            }
+          ]
+        }
+      }
+    },
+    "boxeo": {
+      "title": "Boxeo",
+      "subtitle": "Técnicas de boxeo",
+      "description": "Mejora tu condición física y desarrolla agilidad con el boxeo. Aprende técnicas de combate, entrena tu resistencia y libera tensiones mientras fortaleces tu cuerpo.",
+      "image": "https://journey.app/blog/wp-content/uploads/2019/11/Mitos-sobre-el-boxeo.jpg",
+      "navigateTo": "boxeo",
+      "rutinas": {
+        "principiante": {
+          "title": "Rutina de Principiante",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Icon_1_%28set_u%29.png",
+          "exercises": [
+            {
+              "name": "Sombras básicas",
+              "duration": "5 minutos",
+              "description": "Realiza movimientos de jab y cross frente al espejo."
+            },
+            {
+              "name": "Golpes al saco lento",
+              "duration": "5 minutos",
+              "description": "Práctica de golpes básicos con técnica correcta."
+            }
+          ]
+        },
+        "intermedio": {
+          "title": "Rutina Intermedia",
+          "image": "https://cdn-icons-png.flaticon.com/512/8068/8068073.png",
+          "exercises": [
+            {
+              "name": "Combinaciones simples",
+              "duration": "6 minutos",
+              "description": "Entrena combinaciones de 1-2 y ganchos."
+            },
+            {
+              "name": "Footwork básico",
+              "duration": "4 minutos",
+              "description": "Desplazamientos laterales y hacia atrás para mejorar agilidad."
+            }
+          ]
+        },
+        "avanzado": {
+          "title": "Rutina Avanzada",
+          "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUSw1rccH3c_vkt_J-bhFtoIoURbQrGv-bLw&s",
+          "exercises": [
+            {
+              "name": "Combinaciones avanzadas",
+              "duration": "8 minutos",
+              "description": "Entrena combinaciones rápidas con esquives."
+            },
+            {
+              "name": "Golpes al saco intensos",
+              "duration": "6 minutos",
+              "description": "Aumenta la potencia y velocidad en cada golpe."
+            }
+          ]
+        }
+      }
+    },
+    "gimnasio": {
+      "title": "Gimnasio",
+      "subtitle": "Entrenamiento de fuerza",
+      "description": "Optimiza tu rutina con ejercicios de fuerza y resistencia. Utiliza pesas, máquinas o tu propio peso corporal para alcanzar tus objetivos de acondicionamiento físico.",
+      "image": "https://media.revistagq.com/photos/65b12cd1df908a3c3a4d7373/16:9/w_2560%2Cc_limit/fitness%2520portada.jpg",
+      "navigateTo": "gimnasio",
+      "rutinas": {
+        "principiante": {
+          "title": "Rutina de Principiante",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Icon_1_%28set_u%29.png",
+          "exercises": [
+            {
+              "name": "Flexiones asistidas",
+              "duration": "3 series de 10 repeticiones",
+              "description": "Realiza flexiones apoyando las rodillas."
+            },
+            {
+              "name": "Sentadillas sin peso",
+              "duration": "3 series de 12 repeticiones",
+              "description": "Sentadillas con peso corporal para activar piernas."
+            }
+          ]
+        },
+        "intermedio": {
+          "title": "Rutina Intermedia",
+          "image": "https://cdn-icons-png.flaticon.com/512/8068/8068073.png",
+          "exercises": [
+            {
+              "name": "Press militar con mancuernas",
+              "duration": "3 series de 8 repeticiones",
+              "description": "Fortalece hombros con mancuernas."
+            },
+            {
+              "name": "Peso muerto con barra",
+              "duration": "3 series de 10 repeticiones",
+              "description": "Trabaja la cadena posterior con técnica correcta."
+            }
+          ]
+        },
+        "avanzado": {
+          "title": "Rutina Avanzada",
+          "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUSw1rccH3c_vkt_J-bhFtoIoURbQrGv-bLw&s",
+          "exercises": [
+            {
+              "name": "Sentadilla con barra",
+              "duration": "4 series de 6 repeticiones",
+              "description": "Incrementa la fuerza en piernas y glúteos."
+            },
+            {
+              "name": "Dominadas lastradas",
+              "duration": "3 series al fallo",
+              "description": "Agrega peso para incrementar la dificultad."
+            }
+          ]
+        }
+      }
+    },
+    "yoga": {
+      "title": "Yoga",
+      "subtitle": "Relajación y flexibilidad",
+      "description": "Encuentra el equilibrio entre cuerpo y mente con sesiones de yoga. Mejora tu flexibilidad, reduce el estrés y fortalece tu conexión interior.",
+      "image": "https://ionicframework.com/docs/img/demos/card-media.png",
+      "navigateTo": "yoga",
+      "rutinas": {
+        "principiante": {
+          "title": "Rutina de Principiante",
+          "image": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Icon_1_%28set_u%29.png",
+          "exercises": [
+            {
+              "name": "Postura del niño",
+              "duration": "3 minutos",
+              "description": "Relaja la espalda y mejora la flexibilidad."
+            },
+            {
+              "name": "Perro hacia abajo",
+              "duration": "3 minutos",
+              "description": "Estira toda la cadena posterior."
+            }
+          ]
+        },
+        "intermedio": {
+          "title": "Rutina Intermedia",
+          "image": "https://cdn-icons-png.flaticon.com/512/8068/8068073.png",
+          "exercises": [
+            {
+              "name": "Guerrero I",
+              "duration": "4 minutos",
+              "description": "Fortalece piernas y mejora la postura."
+            },
+            {
+              "name": "Postura del triángulo",
+              "duration": "4 minutos",
+              "description": "Aumenta la flexibilidad en caderas y columna."
+            }
+          ]
+        },
+        "avanzado": {
+          "title": "Rutina Avanzada",
+          "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUSw1rccH3c_vkt_J-bhFtoIoURbQrGv-bLw&s",
+          "exercises": [
+            {
+              "name": "Postura del cuervo",
+              "duration": "5 minutos",
+              "description": "Ejercicio avanzado de equilibrio en brazos."
+            },
+            {
+              "name": "Postura del arco",
+              "duration": "5 minutos",
+              "description": "Fortalece la espalda y mejora la flexibilidad."
+            }
+          ]
+        }
+      }
+    }
+  }
+  

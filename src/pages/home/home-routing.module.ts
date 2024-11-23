@@ -8,16 +8,20 @@ const routes: Routes = [
     component: HomePage,
     children: [
       {
+        path: 'inicio',
+        loadChildren: () => import('../inicio/inicio.module').then(m => m.InicioPageModule)
+      },
+      {
         path: 'streaming',
         loadChildren: () => import('../streaming-ffmpeg/streaming-ffmpeg.module').then(m => m.StreamingFfmpegPageModule)
       },
       {
-        path: 'rutinas',
-        loadChildren: () => import('../rutinas/rutinas.module').then(m => m.RutinasPageModule)
+        path: 'disciplines',
+        loadChildren: () => import('../disciplines/disciplines.module').then(m => m.DisciplinesPageModule)
       },
       {
         path: '',
-        redirectTo: 'streaming',
+        redirectTo: 'disciplines',
         pathMatch: 'full'
       }
     ]

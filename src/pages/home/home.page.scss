@@ -12,3 +12,19 @@ ion-tab-button:hover {
   align-items: center;
   height: 4rem; /* 100px en unidades rem */
 }
+
+.home-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.home-image {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 20px;
+  padding: 1rem;
+  border-radius: 30px;
+}

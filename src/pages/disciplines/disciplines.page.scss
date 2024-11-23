@@ -1,0 +1,49 @@
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    overflow-y: scroll;
+    padding: 1rem;
+  }
+  
+  .custom-card {
+    max-width: 400px; /* Optional: Limits the maximum width */
+    padding: 0; /* Removes padding for better alignment */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
+    border-radius: 10px 10px 0 0; /* Top-left and top-right corners rounded, bottom corners not */
+    overflow: hidden; /* Ensures no overflow from content */
+}
+
+  
+  // .card-content {
+  //   display: flex;
+  //   align-items: center; /* Vertically aligns the content */
+  //   gap: 1rem; /* Adds space between image and text */
+  //   padding: 1rem; /* Adds padding inside the card */
+  // }
+  
+  .card-image {
+    width: 100%; /* Sets a fixed width for the image */
+    height: 200px; /* Sets a fixed height for the image */
+    object-fit: cover; /* Ensures the image scales proportionally */
+    border-radius: 10px 10px 0 0; /* Top-left and top-right corners rounded, bottom corners not */
+    flex-shrink: 0; /* Prevents the image from shrinking */
+  }
+  
+  .text-content {
+    flex: 1; /* Allows the text to take up remaining space */
+    padding: 1rem;
+  }
+  
+  ion-card-header {
+    padding: 0; /* Removes default padding */
+    margin-bottom: 0.5rem; /* Adds space below the header */
+  }
+  
+  ion-card-content {
+    padding: 0; /* Removes default padding */
+    font-size: 0.8rem; /* Adjusts text size for readability */
+    color: #555; /* Subtle text color for better contrast */
+  }
+  
