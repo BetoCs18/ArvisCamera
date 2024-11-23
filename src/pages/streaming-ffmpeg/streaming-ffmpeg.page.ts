@@ -49,6 +49,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   step: string = '';
   stepNum: number = 0;
   open = false;
+  done = false;
   progress = 0;
   modalProgress = 1;
   progressColor: string = 'danger';
@@ -238,7 +239,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     this.openModal();
     setTimeout(() => {
       this.closeModal();
-    }, 7000);
+    }, 5000);
     this.onModelSelect(this.selectedModel);
     this.intervalId = setInterval(async () => {
       const imageElement = await this.getImageUrl();
@@ -282,10 +283,10 @@ export class StreamingFfmpegPage implements AfterViewInit  {
 
   changeExercise(){
     this.stopImageRefresh();
-    this.openSuccessModal();
+    this.done = true;
     setTimeout(() =>{
-      this.closeSuccessModal();
-    },2000);
+      this.done = false;
+    },1500);
     this.progress = 0;
     this.stepNum++;
     if(this.stepNum < this.models.length){
@@ -410,7 +411,6 @@ export class StreamingFfmpegPage implements AfterViewInit  {
       console.error('Modelo no seleccionado.');
       return;
     }
-    console.log(this.selectedModel);
 
     if (!this.canvasCtx) return;
 
@@ -459,7 +459,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
       if (this.errorsPose <= 1) {
         this.statusPose = 'Buena postura';
         //this.FooterColor = 'success';
-        this.progress = this.progress + 0.025;
+        this.progress = this.progress + 0.04;
         if(this.progress > 0.5){
           this.progressColor = 'warning';
         }

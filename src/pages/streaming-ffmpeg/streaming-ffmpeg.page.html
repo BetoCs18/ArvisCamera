@@ -51,20 +51,23 @@
         <ion-progress-bar #modalProgressBar [value]="modalProgress" color="primary"></ion-progress-bar>
       </ng-template>
     </ion-modal>
-    <ion-modal id="success-modal" #success>
+    <!-- <ion-modal id="success-modal" #success>
       <ng-template>
         <div class="wrapper">
-          <ion-card color="success" class="ion-padding" button="true" detail="false" (click)="modal.dismiss()">
-            <ion-icon name="checkmark-done-circle-outline"></ion-icon>
-          </ion-card>
+
         </div>
         <ion-progress-bar #modalProgressBar [value]="modalProgress" color="primary"></ion-progress-bar>
       </ng-template>
-    </ion-modal>
+    </ion-modal> -->
   </div>
   <div class="progress-value" *ngIf="open">
     <ion-progress-bar #progressBar [value]="progress" color="{{progressColor}}"></ion-progress-bar>
     <span>{{statusPose}}</span>
+  </div>
+  <div class="done-bar" *ngIf="done">
+    <ion-card color="success" class="ion-padding" detail="false" style="align-items: center;">
+      <ion-text style="text-align: center; display: block;"><ion-icon name="checkmark-circle-outline"></ion-icon>&nbsp;¡Completado!&nbsp;<ion-icon name="checkmark-circle-outline"></ion-icon></ion-text>
+    </ion-card>
   </div>
 </ion-content>
 
