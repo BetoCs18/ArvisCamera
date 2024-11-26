@@ -25,8 +25,10 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   //@ViewChild( 'modal', { static: true}) modal!: ElementRef<IonModal>;
 
   outputCanvas!: HTMLCanvasElement;
+  inputCanvas!: HTMLCanvasElement;
   private resizeObserver: ResizeObserver | null = null;
   private canvasCtx!: CanvasRenderingContext2D;
+  inputCanvasCtx!: CanvasRenderingContext2D;
   httpStreamUrl: string | null = null;
   poseLandmarker!: PoseLandmarker;
   drawingUtils!: DrawingUtils;
@@ -102,6 +104,11 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         this.initializePoseDetection();
       } else {
         console.error('Error: no se pudo obtener el contexto del canvas');
+      }
+      this.inputCanvas = document.createElement('canvas');
+      const inputContext = this.inputCanvas.getContext('2d');
+      if(inputContext){
+        this.inputCanvasCtx = inputContext;
       }
       this.resizeObserver?.disconnect();
     }
@@ -252,6 +259,13 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     });
   }
 
+  isTransparent(imageElement: HTMLImageElement){
+
+  }
+
+  checkTransparency(){
+
+  }
   isBlackImage(imageData: ImageData): boolean{
     const pixels = imageData.data;
     let isBlack = true;
