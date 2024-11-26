@@ -38,6 +38,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   testImageUrl: SafeUrl | null = '../assets/Portada_Fondo_-_Camara.png';
   modelImageUrl: SafeUrl | null = '../assets/Portada_Fondo_-_Camara.png';
   intervalId: any;
+  modalInterval: any;
   lastImageData: string | null = null;
   // rtspUrl: string = 'rtsp://192.168.1.18/1/h264major';
   rtspUrl: string = 'rtsp://192.168.1.183:8080/h264_pcm.sdp';
@@ -106,6 +107,8 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         console.error('Error: no se pudo obtener el contexto del canvas');
       }
       this.inputCanvas = document.createElement('canvas');
+      this.inputCanvas.width = this.outputCanvas.width;
+      this.inputCanvas.height = this.outputCanvas.height;
       const inputContext = this.inputCanvas.getContext('2d');
       if(inputContext){
         this.inputCanvasCtx = inputContext;
@@ -238,8 +241,13 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         console.error('La imagen tiene dimensiones incorrectas.');
         return null;
       }
+      const isTransparent = await this.checkTransparency(imageElement,this.inputCanvas,this.inputCanvasCtx)
+      if(isTransparent){
+        console.error('La imagen es transparente');
+        return null;
+      }
       this.frame++;
-      if (this.frame > 1){
+      if (this.frame > 2){
         this.testImageUrl = this.sanitizer.bypassSecurityTrustUrl(`${imageElement.src}`);
         this.frame = 0;
       }
@@ -259,12 +267,28 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     });
   }
 
-  isTransparent(imageElement: HTMLImageElement){
+  checkTransparency(imageElement: HTMLImageElement, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D): boolean{
+    try{
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  }
+      ctx.drawImage(imageElement,0,0);
 
-  checkTransparency(){
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
+      const pixels = imageData.data;
+
+      for(let i = 3; i < pixels.length; i += 4){
+        if(pixels[i] < 255){
+          console.log('la imagen es transparente');
+          return true;
+        }
+      }
+      console.log('la imagen no es transparente');
+      return false;
+    }catch (error){
+      console.error('No se pudo escribir el canvas')
+      return true;
+    }
   }
   isBlackImage(imageData: ImageData): boolean{
     const pixels = imageData.data;
@@ -305,9 +329,15 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     // Ejecuta el refresco de imagen a intervalos
     //this.getJsonModels();
     this.openModal();
-    setTimeout(() => {
-      this.closeModal();
-    }, 5000);
+    this.modalInterval = setInterval(() => {
+      this.modalProgress = this.modalProgress - 0.07;
+      if(this.modalProgress <= 0){
+        this.modalProgress = 1;
+        clearInterval(this.modalInterval);
+        this.modalInterval = null;
+        this.closeModal();
+      }
+    }, 1000 / 20);
     this.onModelSelect(this.selectedModel);
     this.intervalId = setInterval(async () => {
       const imageElement = await this.getImageUrl();
@@ -316,7 +346,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         try{
           const poseLandmarkerResult = this.poseLandmarker.detect(imageElement);
           if (poseLandmarkerResult) {
-            this.onResults(poseLandmarkerResult);
+            this.onResults(poseLandmarkerResult, this.selectedModel);
           }
         }catch (error){
           console.error("Error al detectar poses con mediapipe: ", error);
@@ -474,12 +504,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     return (angleInRadians * 180) / Math.PI; // Convertir a grados
   }
 
-  private onResults(results: PoseLandmarkerResult) {
-    if (!this.selectedModel) {
-      console.error('Modelo no seleccionado.');
-      return;
-    }
-
+  private onResults(results: PoseLandmarkerResult, selectedModel: any) {
     if (!this.canvasCtx) return;
 
     this.canvasCtx.save();
@@ -490,7 +515,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
       this.errorsPosePoints = '';
 
       // Procesar ángulos del modelo seleccionado
-      for (const [angleName, angleData] of Object.entries(this.selectedModel.coordenadas.angles) as [string, AngleData][]) {
+      for (const [angleName, angleData] of Object.entries(selectedModel.coordenadas.angles) as [string, AngleData][]) {
         const [indexA, indexB, indexC] = angleData.points;
 
         // console.log("--------------Modelo----------" + this.selectedModel.name);
@@ -510,7 +535,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
 
 
         // Verificar si el ángulo está dentro de la tolerancia
-        const isWithinTolerance = Math.abs(calculatedAngle - expectedAngle) <= this.selectedModel.coordenadas.tolerance;
+        const isWithinTolerance = Math.abs(calculatedAngle - expectedAngle) <= selectedModel.coordenadas.tolerance;
         // console.log('isWithinTolerance: ' + isWithinTolerance);
 
         if (!isWithinTolerance) {
@@ -527,7 +552,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
       if (this.errorsPose <= 1) {
         this.statusPose = 'Buena postura';
         //this.FooterColor = 'success';
-        this.progress = this.progress + 0.04;
+        this.progress = this.progress + 0.05;
         if(this.progress > 0.5){
           this.progressColor = 'warning';
         }
@@ -541,7 +566,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         this.drawingUtils.drawLandmarks(landmark, {color: '#00FF00',
           fillColor: '#00FF00',
           lineWidth: 2,
-          radius: 3
+          radius: 2
         });
         this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: '#00FF00', fillColor: '#00FF00', lineWidth: 1.5, radius: 3.5});
       } else {
@@ -553,7 +578,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         this.drawingUtils.drawLandmarks(landmark, {color: '#FF0000',
           fillColor: '#FF0000',
           lineWidth: 2,
-          radius: 3
+          radius: 2
         });
         this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: '#FF0000', fillColor: '#FF0000', lineWidth: 1.5, radius: 3.5});
       }
