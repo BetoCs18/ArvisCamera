@@ -377,7 +377,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
           console.error("Error al detectar poses con mediapipe: ", error);
         }
       }
-    }, 1000 / 15); // Frecuencia de actualización ajustable
+    }, 1000 / 17); // Frecuencia de actualización ajustable
   }
 
   stopImageRefresh(){
@@ -705,13 +705,16 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     this.canvasCtx.save();
     this.canvasCtx.clearRect(0, 0, this.outputCanvas.width, this.outputCanvas.height);
 
+    for(const landmark of results.landmarks){
+      this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: 'white', fillColor: 'white', lineWidth: 1.5, radius: 3.5});
+    }
+
     for(const landmark of landmarksTrue){
       this.drawingUtils.drawLandmarks(landmark, {color: '#00FF00',
         fillColor: '#00FF00',
         lineWidth: 1,
         radius: 2
       });
-      this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: '#00FF00', fillColor: '#00FF00', lineWidth: 1.5, radius: 3.5});
     }
 
     for(const landmark of landmarksFalse){
@@ -720,7 +723,6 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         lineWidth: 1,
         radius: 2
       });
-      this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: '#FF0000', fillColor: '#FF0000', lineWidth: 1.5, radius: 3.5});
     }
 
 
