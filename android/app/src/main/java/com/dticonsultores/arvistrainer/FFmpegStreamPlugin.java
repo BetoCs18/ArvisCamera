@@ -31,9 +31,11 @@ public class FFmpegStreamPlugin extends Plugin{
     stopStream(null);
 
     // Comando FFmpeg para convertir RTSP a HLS (HTTP Live Streaming)
-    String ffmpegCommand = "-y -i " + rtspUrl +
+    String ffmpegCommand = "-y -re -rtsp_transport tcp -i " + rtspUrl +
+                            " -max_delay 4000000 -analyzeduration 10000000" +
                             " -s 1024x768" +
-                            " -vf fps=20" +
+                            " -vf \"blackdetect,blackframe=amount=98:threshold=32,fps=20\" "+
+                            " -vsync 2" +
                             " -update 1" +
                             " -q:v 2 " +
                             outputFilePath;

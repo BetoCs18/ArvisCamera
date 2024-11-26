@@ -1,0 +1,305 @@
+{
+  "T-pose": {
+    "imageName": "assets/postures/test/tpose.jpg",
+    "instruction": "Junta las piernas y estira los brazos",
+    "angles": {
+      "rightElbow": {
+        "expected": 180,
+        "points": [11, 13, 15],
+        "Descripcion": "Ángulo entre el hombro derecho, el codo derecho y la muñeca derecha",
+        "required": true
+      },
+      "leftElbow": {
+        "expected": 180,
+        "points": [12, 14, 16],
+        "Descripcion": "Ángulo entre el hombros izquierdo, el codo izquierdo y la muñeca izquierda",
+        "required": true
+      },
+      "rightKnee": {
+        "expected": 180,
+        "points": [23, 25, 27],
+        "Descripcion": "Ángulo entre la cadera derecha, la rodilla derecha y el tobillo derecho",
+        "required": true
+      },
+      "leftKnee": {
+        "expected": 180,
+        "points": [24, 26, 28],
+        "Descripcion": "Ángulo entre la cadera izquierda, la rodilla izquierda y el tobillo izquierdo",
+        "required": true
+      },
+      "rightHip": {
+        "expected": 180,
+        "points": [11, 23, 25],
+        "Descripcion": "Ángulo entre el hombro derecho, la cadera derecha y la rodilla derecha",
+        "required": true
+      },
+      "leftHip": {
+        "expected": 180,
+        "points": [12, 24, 26],
+        "Descripcion": "Ángulo entre el hombro izquierdo, la cadera izquierda y la rodilla izquierda",
+        "required": true
+      }
+    },
+    "width":{
+      "rightWrist-rightAnkle":{
+        "furthestPoint": [16],
+        "points": [16, 28],
+        "Descripcion": "Punto más alejado entre el brazo derecho y el tobillo derecho",
+        "required": true
+      },
+      "leftWrist-leftAnkle":{
+        "furthestPoint": [15],
+        "points": [15, 27],
+        "Descripcion": "Punto más alejado entre el brazo izquierdo y el tobillo izquierdo",
+        "required": true
+      },
+      "rightShoulder-rightAnkle":{
+        "furthestPoint": [28],
+        "points": [12, 28],
+        "Descripcion": "Punto más alto entre el hombro derecho y el tobillo derecho",
+        "required": false
+      },
+      "leftShoulder-leftAnkle":{
+        "furthestPoint": [27],
+        "points": [11, 27],
+        "Descripcion": "Punto más alto entre el hombro izquierdo y el tobillo izquierdo",
+        "required": false
+      }
+    },
+    "height":{
+      "rightWrist-head":{
+        "highestPoint": [0],
+        "points": [16, 0],
+        "Descripcion": "Punto más alto entre la cabeza y el brazo derecho",
+        "required": true
+      },
+      "leftWrist-head":{
+        "highestPoint": [0],
+        "points": [15, 0],
+        "Descripcion": "Punto más alto entre la cabeza y el brazo izquierdo",
+        "required": true
+      },
+      "rightWrist-leftWrist":{
+        "highestPoint": [],
+        "points": [16,15],
+        "Descripcion": "Punto más alto entre el brazo derecho y el brazo izquierdo",
+        "required": false
+      },
+      "rightKnee-leftKnee":{
+        "highestPoint": [26],
+        "points": [26, 25],
+        "Descripcion": "Punto más alto entre la rodilla derecha y la rodilla izquierda",
+        "required": false
+      },
+      "rightAnkle-leftAnkle":{
+        "highestPoint": [28],
+        "points": [28, 27],
+        "Descripcion": "Punto más alto entre el tobillo derecho y el tobillo izquierdo",
+        "required": false
+      }
+    },
+    "tolerance": 10
+  },
+  "Brazo-izq-arriba": {
+    "imageName": "assets/postures/test/tpose1.jpg",
+    "instruction": "Levanta el brazo izquierdo",
+    "angles": {
+      "rightElbow": {
+        "expected": 180,
+        "points": [11, 13, 15],
+        "Descripcion": "Ángulo entre el hombro derecho, el codo derecho y la muñeca derecha",
+        "required": true
+      },
+      "leftElbow": {
+        "expected": 180,
+        "points": [12, 14, 16],
+        "Descripcion": "Ángulo entre el hombros izquierdo, el codo izquierdo y la muñeca izquierda",
+        "required": true
+      },
+      "rightKnee": {
+        "expected": 180,
+        "points": [23, 25, 27],
+        "Descripcion": "Ángulo entre la cadera derecha, la rodilla derecha y el tobillo derecho",
+        "required": true
+      },
+      "leftKnee": {
+        "expected": 180,
+        "points": [24, 26, 28],
+        "Descripcion": "Ángulo entre la cadera izquierda, la rodilla izquierda y el tobillo izquierdo",
+        "required": true
+      },
+      "rightHip": {
+        "expected": 180,
+        "points": [11, 23, 25],
+        "Descripcion": "Ángulo entre el hombro derecho, la cadera derecha y la rodilla derecha",
+        "required": true
+      },
+      "leftHip": {
+        "expected": 180,
+        "points": [12, 24, 26],
+        "Descripcion": "Ángulo entre el hombro izquierdo, la cadera izquierda y la rodilla izquierda",
+        "required": true
+      }
+    },
+    "width":{
+      "rightWrist-rightAnkle":{
+        "furthestPoint": [16],
+        "points": [16, 28],
+        "Descripcion": "Punto más alejado entre el brazo derecho y el tobillo derecho",
+        "required": true
+      },
+      "leftWrist-leftAnkle":{
+        "furthestPoint": [15],
+        "points": [15, 27],
+        "Descripcion": "Punto más alejado entre el brazo izquierdo y el tobillo izquierdo",
+        "required": true
+      },
+      "rightShoulder-rightAnkle":{
+        "furthestPoint": [28],
+        "points": [12, 28],
+        "Descripcion": "Punto más alto entre el hombro derecho y el tobillo derecho",
+        "required": false
+      },
+      "leftShoulder-leftAnkle":{
+        "furthestPoint": [27],
+        "points": [11, 27],
+        "Descripcion": "Punto más alto entre el hombro izquierdo y el tobillo izquierdo",
+        "required": false
+      }
+    },
+    "height":{
+      "rightWrist-head":{
+        "highestPoint": [0],
+        "points": [16, 0],
+        "Descripcion": "Punto más alto entre la cabeza y el brazo derecho",
+        "required": true
+      },
+      "leftWrist-head":{
+        "highestPoint": [0],
+        "points": [15, 0],
+        "Descripcion": "Punto más alto entre la cabeza y el brazo izquierdo",
+        "required": true
+      },
+      "rightWrist-leftWrist":{
+        "highestPoint": [],
+        "points": [16,15],
+        "Descripcion": "Punto más alto entre el brazo derecho y el brazo izquierdo",
+        "required": false
+      },
+      "rightKnee-leftKnee":{
+        "highestPoint": [26],
+        "points": [26, 25],
+        "Descripcion": "Punto más alto entre la rodilla derecha y la rodilla izquierda",
+        "required": false
+      },
+      "rightAnkle-leftAnkle":{
+        "highestPoint": [28],
+        "points": [28, 27],
+        "Descripcion": "Punto más alto entre el tobillo derecho y el tobillo izquierdo",
+        "required": false
+      }
+    },
+    "tolerance": 10
+  },
+  "Brazo-der-arriba": {
+    "imageName": "assets/postures/test/tpose2.jpg",
+    "instruction": "Junta las piernas y estira los brazos",
+    "angles": {
+      "rightElbow": {
+        "expected": 180,
+        "points": [11, 13, 15],
+        "Descripcion": "Ángulo entre el hombro derecho, el codo derecho y la muñeca derecha",
+        "required": true
+      },
+      "leftElbow": {
+        "expected": 180,
+        "points": [12, 14, 16],
+        "Descripcion": "Ángulo entre el hombros izquierdo, el codo izquierdo y la muñeca izquierda",
+        "required": true
+      },
+      "rightKnee": {
+        "expected": 180,
+        "points": [23, 25, 27],
+        "Descripcion": "Ángulo entre la cadera derecha, la rodilla derecha y el tobillo derecho",
+        "required": true
+      },
+      "leftKnee": {
+        "expected": 180,
+        "points": [24, 26, 28],
+        "Descripcion": "Ángulo entre la cadera izquierda, la rodilla izquierda y el tobillo izquierdo",
+        "required": true
+      },
+      "rightHip": {
+        "expected": 180,
+        "points": [11, 23, 25],
+        "Descripcion": "Ángulo entre el hombro derecho, la cadera derecha y la rodilla derecha",
+        "required": true
+      },
+      "leftHip": {
+        "expected": 180,
+        "points": [12, 24, 26],
+        "Descripcion": "Ángulo entre el hombro izquierdo, la cadera izquierda y la rodilla izquierda",
+        "required": true
+      }
+    },
+    "width":{
+      "rightWrist-rightAnkle":{
+        "furthestPoint": [16],
+        "points": [16, 28],
+        "Descripcion": "Punto más alejado entre el brazo derecho y el tobillo derecho",
+        "required": true
+      },
+      "leftWrist-leftAnkle":{
+        "furthestPoint": [15],
+        "points": [15, 27],
+        "Descripcion": "Punto más alejado entre el brazo izquierdo y el tobillo izquierdo",
+        "required": true
+      },
+      "rightShoulder-rightAnkle":{
+        "furthestPoint": [28],
+        "points": [12, 28],
+        "Descripcion": "Punto más alto entre el hombro derecho y el tobillo derecho",
+        "required": false
+      },
+      "leftShoulder-leftAnkle":{
+        "furthestPoint": [27],
+        "points": [11, 27],
+        "Descripcion": "Punto más alto entre el hombro izquierdo y el tobillo izquierdo",
+        "required": false
+      }
+    },
+    "height":{
+      "rightWrist-head":{
+        "highestPoint": [0],
+        "points": [16, 0],
+        "Descripcion": "Punto más alto entre la cabeza y el brazo derecho",
+        "required": true
+      },
+      "leftWrist-head":{
+        "highestPoint": [0],
+        "points": [15, 0],
+        "Descripcion": "Punto más alto entre la cabeza y el brazo izquierdo",
+        "required": true
+      },
+      "rightWrist-leftWrist":{
+        "highestPoint": [],
+        "points": [16,15],
+        "Descripcion": "Punto más alto entre el brazo derecho y el brazo izquierdo",
+        "required": false
+      },
+      "rightKnee-leftKnee":{
+        "highestPoint": [26],
+        "points": [26, 25],
+        "Descripcion": "Punto más alto entre la rodilla derecha y la rodilla izquierda",
+        "required": false
+      },
+      "rightAnkle-leftAnkle":{
+        "highestPoint": [28],
+        "points": [28, 27],
+        "Descripcion": "Punto más alto entre el tobillo derecho y el tobillo izquierdo",
+        "required": false
+      }
+    },
+    "tolerance": 10
+  }
+}

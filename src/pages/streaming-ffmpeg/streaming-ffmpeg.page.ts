@@ -21,6 +21,7 @@ interface AngleData {
 export class StreamingFfmpegPage implements AfterViewInit  {
   @ViewChild('contentDiv', { static: true }) contentDiv!: ElementRef<HTMLDivElement>;
   @ViewChild('inputImage', {static: true}) inputImage!: ElementRef<HTMLImageElement>;
+  @ViewChild('testImage', {static: true}) testImage!: ElementRef<HTMLImageElement>;
   //@ViewChild( 'modal', { static: true}) modal!: ElementRef<IonModal>;
 
   outputCanvas!: HTMLCanvasElement;
@@ -32,6 +33,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   drawingOptionsWarning!: DrawingOptions;
   drawingOptinsSuccess!: DrawingOptions;
   dynamicImageUrl: SafeUrl | null = '../assets/Portada_Fondo_-_Camara.png';
+  testImageUrl: SafeUrl | null = '../assets/Portada_Fondo_-_Camara.png';
   modelImageUrl: SafeUrl | null = '../assets/Portada_Fondo_-_Camara.png';
   intervalId: any;
   lastImageData: string | null = null;
@@ -52,6 +54,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   done = false;
   progress = 0;
   modalProgress = 1;
+  frame = 0;
   progressColor: string = 'danger';
 
   constructor(public sanitizer: DomSanitizer, private platform: Platform, private http: HttpClient) {}
@@ -215,20 +218,71 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         path: 'live/stream.jpg', // Ruta relativa dentro del directorio de caché
         directory: Directory.Cache,
       });
-      if (result.data) {
-        const imageElement = new Image();
-        imageElement.src = `data:image/jpeg;base64,${result.data}`;
-        await new Promise<void>((resolve, reject) => {
-          imageElement.onload = () => resolve();
-          imageElement.onerror = (e) => reject(e);
-        });
-        return imageElement;
-      } else {
+      if (!result.data || typeof result.data !== 'string' || result.data.length === 0){
         console.warn("La imagen está vacía o no se pudo leer.");
         return null;
       }
+      if(!result.data.toString().startsWith('/9j/')){
+        console.error('La imagen no tiene el formato JPEG esperado.');
+        return null;
+      }
+      const imageElement = await this.loadImage(`data:image/jpeg;base64,${result.data}`)
+      if (imageElement.width === 0 || imageElement.height === 0){
+        console.error('La imagen tiene dimensiones incorrectas.');
+        return null;
+      }
+      this.frame++;
+      if (this.frame > 1){
+        this.testImageUrl = this.sanitizer.bypassSecurityTrustUrl(`${imageElement.src}`);
+        this.frame = 0;
+      }
+      return imageElement;
     } catch (error) {
       console.error('Error al leer el archivo: ', error);
+      return null;
+    }
+  }
+
+  private loadImage(src: string): Promise<HTMLImageElement>{
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = src;
+      img.onload = () => resolve(img);
+      img.onerror = (e) => reject(e);
+    });
+  }
+
+  isBlackImage(imageData: ImageData): boolean{
+    const pixels = imageData.data;
+    let isBlack = true;
+    for (let i = 0; i < pixels.length; i += 4){
+      const r = pixels[i];
+      const g = pixels[i + 1];
+      const b = pixels[i + 2];
+      const a = pixels[i + 3];
+      if(r > 10 || g > 10 || b > 10 || a > 10){
+        isBlack = false;
+        break;
+      }
+    }
+    return isBlack;
+  }
+
+  loadTexture(gl: WebGLRenderingContext, imageElement: HTMLImageElement): WebGLTexture | null {
+    try{
+      const texture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageElement);
+
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+      console.log('Textura cargada correctamente.');
+      return texture;
+    }catch (error) {
+      console.error('Error al cargar la textura en WebGL:', error);
       return null;
     }
   }
@@ -473,7 +527,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         this.drawingUtils.drawLandmarks(landmark, {color: '#00FF00',
           fillColor: '#00FF00',
           lineWidth: 2,
-          radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1),
+          radius: 3
         });
         this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: '#00FF00', fillColor: '#00FF00', lineWidth: 1.5, radius: 3.5});
       } else {
@@ -485,7 +539,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         this.drawingUtils.drawLandmarks(landmark, {color: '#FF0000',
           fillColor: '#FF0000',
           lineWidth: 2,
-          radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
+          radius: 3
         });
         this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: '#FF0000', fillColor: '#FF0000', lineWidth: 1.5, radius: 3.5});
       }

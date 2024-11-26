@@ -37,8 +37,9 @@
     <ion-text style="text-align: center;">{{step}}</ion-text>
   </ion-card>
   <div #contentDiv class="canvas_container">
-    <img #inputImage [src]="dynamicImageUrl" alt="dynamicImageUrl" style="display: block;" width="100%"/>
-    <ion-button id="open-info" shape="round" style="position: absolute; right: 0; top: 0; z-index: 2;"><ion-icon name="information-circle-outline" color="dark"></ion-icon></ion-button>
+    <img #testImage [src]="testImageUrl" style="display: block; z-index: 0;" width="100%">
+    <img #inputImage [src]="dynamicImageUrl" alt="dynamicImageUrl" style="position: absolute; right: 0; top: 0; z-index: 2;" width="100%"/>
+    <ion-button id="open-info" shape="round" style="position: absolute; right: 0; top: 0; z-index: 3;"><ion-icon name="information-circle-outline" color="dark"></ion-icon></ion-button>
     <ion-modal id="example-modal" #modal trigger="open-info">
       <ng-template>
         <div class="wrapper">
