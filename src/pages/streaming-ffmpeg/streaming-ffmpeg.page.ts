@@ -1,5 +1,5 @@
 import { Component, ElementRef, AfterViewInit, ViewChild} from '@angular/core';
-import { FilesetResolver, PoseLandmarker, DrawingUtils, PoseLandmarkerResult, DrawingOptions } from '@mediapipe/tasks-vision';
+import { FilesetResolver, PoseLandmarker, DrawingUtils, PoseLandmarkerResult, DrawingOptions, NormalizedLandmark } from '@mediapipe/tasks-vision';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Platform } from '@ionic/angular';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
@@ -12,7 +12,25 @@ interface AngleData {
   expected: number;
   points: [number, number, number]; // Tres índices que forman el ángulo
 }
+class ObservableNumber{
+  private _value: number = 0;
+  private listeners: ((newValue: number) => void)[] = [];
 
+  get value(): number{
+    return this._value;
+  }
+
+  set value(newValue: number){
+    if (this._value !== newValue){
+      this._value = newValue;
+      this.listeners.forEach((listener) => listener(newValue));
+    }
+  }
+
+  onChange(listener: (newValue: number) => void){
+    this.listeners.push(listener);
+  }
+}
 @Component({
   selector: 'app-streaming-ffmpeg',
   templateUrl: './streaming-ffmpeg.page.html',
@@ -59,6 +77,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   modalProgress = 1;
   frame = 0;
   progressColor: string = 'danger';
+  private poseResult = new ObservableNumber();
 
   constructor(public sanitizer: DomSanitizer, private platform: Platform, private http: HttpClient) {}
 
@@ -232,15 +251,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         console.warn("La imagen está vacía o no se pudo leer.");
         return null;
       }
-      if(!result.data.toString().startsWith('/9j/')){
-        console.error('La imagen no tiene el formato JPEG esperado.');
-        return null;
-      }
       const imageElement = await this.loadImage(`data:image/jpeg;base64,${result.data}`)
-      if (imageElement.width === 0 || imageElement.height === 0){
-        console.error('La imagen tiene dimensiones incorrectas.');
-        return null;
-      }
       const isTransparent = await this.checkTransparency(imageElement,this.inputCanvas,this.inputCanvasCtx)
       if(isTransparent){
         console.error('La imagen es transparente');
@@ -325,6 +336,20 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     }
   }
 
+  async setSeconds(seconds: number){
+    let timeZero = 0;
+    while (timeZero < seconds){
+      timeZero += await this.oneSecond();
+    }
+    return;
+  }
+
+  async oneSecond(): Promise<number>{
+    return new Promise((resolve) =>{
+      setTimeout(() => resolve(1), 1000);
+    })
+  }
+
   private async startImageRefresh() {
     // Ejecuta el refresco de imagen a intervalos
     //this.getJsonModels();
@@ -346,13 +371,13 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         try{
           const poseLandmarkerResult = this.poseLandmarker.detect(imageElement);
           if (poseLandmarkerResult) {
-            this.onResults(poseLandmarkerResult, this.selectedModel);
+            this.onResultsTest(poseLandmarkerResult, this.selectedModel);
           }
         }catch (error){
           console.error("Error al detectar poses con mediapipe: ", error);
         }
       }
-    }, 1000 / 20); // Frecuencia de actualización ajustable
+    }, 1000 / 15); // Frecuencia de actualización ajustable
   }
 
   stopImageRefresh(){
@@ -507,6 +532,10 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   private onResults(results: PoseLandmarkerResult, selectedModel: any) {
     if (!this.canvasCtx) return;
 
+    let landmarksTrue: NormalizedLandmark[][] = results.landmarks;
+    let landmarksFalse: NormalizedLandmark[][] = [];
+    landmarksFalse[0] = [];
+
     this.canvasCtx.save();
     this.canvasCtx.clearRect(0, 0, this.outputCanvas.width, this.outputCanvas.height);
 
@@ -541,6 +570,12 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         if (!isWithinTolerance) {
           this.errorsPose += 1;
           this.errorsPosePoints += ` ${angleName}`;
+          landmarksFalse[0].push(landmark[indexA]);
+          landmarksFalse[0].push(landmark[indexB]);
+          landmarksFalse[0].push(landmark[indexC]);
+          landmarksTrue[0].splice(indexA);
+          landmarksTrue[0].splice(indexB);
+          landmarksTrue[0].splice(indexC);
         }
 
         //console.log(angleName);
@@ -562,31 +597,156 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         if(this.progress >= 1){
           this.changeExercise();
         }
-        // Dibujar puntos y conectores en el canvas
+        /* Dibujar puntos y conectores en el canvas
         this.drawingUtils.drawLandmarks(landmark, {color: '#00FF00',
           fillColor: '#00FF00',
           lineWidth: 2,
           radius: 2
         });
-        this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: '#00FF00', fillColor: '#00FF00', lineWidth: 1.5, radius: 3.5});
+        this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: '#00FF00', fillColor: '#00FF00', lineWidth: 1.5, radius: 3.5});*/
       } else {
         this.statusPose = 'Mala postura';
         //this.FooterColor = 'warning';
         this.progress = 0;
         this.progressColor = 'danger';
-        // Dibujar puntos y conectores en el canvas
+        /* Dibujar puntos y conectores en el canvas
         this.drawingUtils.drawLandmarks(landmark, {color: '#FF0000',
           fillColor: '#FF0000',
           lineWidth: 2,
           radius: 2
         });
-        this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: '#FF0000', fillColor: '#FF0000', lineWidth: 1.5, radius: 3.5});
+        this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: '#FF0000', fillColor: '#FF0000', lineWidth: 1.5, radius: 3.5});*/
       }
-
+      this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: 'white', fillColor: 'white', lineWidth: 1.5, radius: 3.5});
       //console.log('Total de Errores: ' + this.errorsPose + ' Color: ' + this.FooterColor);
       //console.log('Errores: ' + this.errorsPose + ' Points: ' + this.errorsPosePoints);
     }
 
+    for(const landmark of landmarksTrue){
+      this.drawingUtils.drawLandmarks(landmark, {color: '#00FF00',
+        fillColor: '#00FF00',
+        lineWidth: 1,
+        radius: 2
+      });
+    }
+
+    for(const landmark of landmarksFalse){
+      this.drawingUtils.drawLandmarks(landmark, {color: '#FF0000',
+        fillColor: '#FF0000',
+        lineWidth: 1,
+        radius: 2
+      });
+    }
     this.canvasCtx.restore();
   }
+
+  private onResultsTest(results: PoseLandmarkerResult, selectedModel: any) {
+    if (!this.canvasCtx) return;
+
+    let landmarksTrue: NormalizedLandmark[][] = [[]];
+    let landmarksFalse: NormalizedLandmark[][] = [[]];
+
+    this.errorsPose = 0;
+    this.errorsPosePoints = '';
+
+    const tolerance = selectedModel.coordenadas.tolerance;
+    const angles = selectedModel.coordenadas.angles;
+
+    for (const [angleName, angleData] of Object.entries(angles) as [string, AngleData][]) {
+      const [indexA, indexB, indexC] = angleData.points;
+      const landmarks = results.landmarks[0];
+
+      // console.log("--------------Modelo----------" + this.selectedModel.name);
+
+      const pointA = landmarks[indexA];
+      const pointB = landmarks[indexB];
+      const pointC = landmarks[indexC];
+
+      if (!this.isLandmarkValid(pointA) || !this.isLandmarkValid(pointB) || !this.isLandmarkValid(pointC)) {
+        console.warn(`Puntos no válidos para el ángulo ${angleName}`);
+        continue;
+      }
+      // Validar que los índices existen en los resultados de los landmarks
+
+      const calculatedAngle = this.calculateAngle(pointA, pointB, pointC);
+      const expectedAngle = angleData.expected;
+
+      // Verificar si el ángulo está dentro de la tolerancia
+      // console.log('isWithinTolerance: ' + isWithinTolerance);
+      if (Math.abs(calculatedAngle - expectedAngle) > tolerance) {
+        this.errorsPose++;
+        this.errorsPosePoints += ` ${angleName}`;
+        landmarksFalse[0].push(pointA, pointB, pointC);
+        //landmarksTrue.splice(indexA);
+        //landmarksTrue.splice(indexB);
+        //landmarksTrue.splice(indexC);
+      }
+      //console.log(angleName);
+      //console.log(`- Obtenido: ${calculatedAngle}, Esperado: ${expectedAngle}, Diferencia: ${Math.abs(calculatedAngle - expectedAngle)}`);
+    }
+
+    landmarksTrue[0].push(...results.landmarks[0].filter(element => !landmarksFalse[0].includes(element)));
+
+    if (this.errorsPose === 0) {
+      this.statusPose = 'Buena postura';
+      //this.FooterColor = 'success';
+      this.progress = Math.min(this.progress + 0.1, 1);
+      this.progressColor = this.progress > 0.75 ? 'success' : this.progress > 0.5 ? 'warning' : 'primary';
+      if(this.progress === 1){
+        this.changeExercise();
+      }
+    } else {
+      this.statusPose = 'Mala postura';
+      //this.FooterColor = 'warning';
+      this.progress = 0;
+      this.progressColor = 'danger';
+    }
+
+    this.canvasCtx.save();
+    this.canvasCtx.clearRect(0, 0, this.outputCanvas.width, this.outputCanvas.height);
+
+    for(const landmark of landmarksTrue){
+      this.drawingUtils.drawLandmarks(landmark, {color: '#00FF00',
+        fillColor: '#00FF00',
+        lineWidth: 1,
+        radius: 2
+      });
+      this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: '#00FF00', fillColor: '#00FF00', lineWidth: 1.5, radius: 3.5});
+    }
+
+    for(const landmark of landmarksFalse){
+      this.drawingUtils.drawLandmarks(landmark, {color: '#FF0000',
+        fillColor: '#FF0000',
+        lineWidth: 1,
+        radius: 2
+      });
+      this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: '#FF0000', fillColor: '#FF0000', lineWidth: 1.5, radius: 3.5});
+    }
+
+
+
+    this.canvasCtx.restore();
+  }
+
+  private isLandmarkValid(landmark: NormalizedLandmark | undefined): boolean {
+    return landmark !== undefined && landmark.visibility > 0.5;
+  }
+
+  private drawLandmarks(landmarks: NormalizedLandmark[][], color: string) {
+    for (const landmark of landmarks) {
+      this.drawingUtils.drawLandmarks(landmark, {
+        color: color,
+        fillColor: color,
+        lineWidth: 1,
+        radius: 2,
+      });
+      this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {
+        color: color,
+        fillColor: color,
+        lineWidth: 1.5,
+        radius: 3.5,
+      });
+    }
+  }
 }
+
