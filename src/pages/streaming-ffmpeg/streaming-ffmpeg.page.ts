@@ -9,8 +9,12 @@ import FFmpegStream from 'src/plugins/ffmpeg-stream.plugin';
 
 // Definición de Tipos
 interface AngleData {
+  name: string;
+  options: [string, string];
   expected: number;
   points: [number, number, number]; // Tres índices que forman el ángulo
+  message: string;
+  required: boolean;
 }
 
 class ObservableNumber{
@@ -672,20 +676,20 @@ export class StreamingFfmpegPage implements AfterViewInit  {
 
       const calculatedAngle = this.calculateAngle(pointA, pointB, pointC);
       const expectedAngle = angleData.expected;
+      const difference = calculatedAngle - expectedAngle;
 
       // Verificar si el ángulo está dentro de la tolerancia
       // console.log('isWithinTolerance: ' + isWithinTolerance);
       if (Math.abs(calculatedAngle - expectedAngle) > tolerance) {
         this.errorsPose++;
-        this.errorsPosePoints += ` ${angleName}`;
         landmarksFalse[0].push(pointA, pointB, pointC);
-        //landmarksTrue.splice(indexA);
-        //landmarksTrue.splice(indexB);
-        //landmarksTrue.splice(indexC);
+        this.errorsPosePoints += `- ${(difference > 0 ? angleData.options[0] : angleData.options[1])} ${angleData.name}\n`;
       }
       //console.log(angleName);
       //console.log(`- Obtenido: ${calculatedAngle}, Esperado: ${expectedAngle}, Diferencia: ${Math.abs(calculatedAngle - expectedAngle)}`);
     }
+
+    this.message = this.errorsPosePoints;
 
     landmarksTrue[0].push(...results.landmarks[0].filter(element => !landmarksFalse[0].includes(element)));
 

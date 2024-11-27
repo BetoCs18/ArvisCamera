@@ -1,78 +1,194 @@
 {
   "Postura-Box-1": {
-    "imageName": "assets/postures/box/box2.png",
+    "imageName": "assets/postures/box/box1.png",
     "instruction": "Mantén el compás abierto y levanta los puños a la altura de tu rostro",
     "angles": {
       "rightElbow": {
-        "expected": 10,
+        "name": "codo izquierdo",
+        "expected": 5,
         "points": [11, 13, 15],
-        "Descripcion": "Ángulo entre el hombro derecho, el codo derecho y la muñeca derecha"
+        "message": "Ángulo entre el hombro derecho, el codo derecho y la muñeca derecha",
+        "required": true
       },
       "leftElbow": {
-        "expected": 10,
+        "name": "codo derecho",
+        "expected": 15,
         "points": [12, 14, 16],
-        "Descripcion": "Ángulo entre el hombros izquierdo, el codo izquierdo y la muñeca izquierda"
+        "message": "Ángulo entre el hombros izquierdo, el codo izquierdo y la muñeca izquierda",
+        "required": true
+      },
+      "leftShoulder": {
+        "name": "hombro izquierdo",
+        "expected": 5,
+        "points": [23, 11, 13],
+        "message": "Ángulo entre la cadera izquierda, el hombro izquierdo y el codo izquierdo",
+        "required": true
+      },
+      "rightShoulder": {
+        "name": "hombro derecho",
+        "expected": 17,
+        "points": [24, 12, 14],
+        "message": "Ángulo entre la cadera derecha, el hombro derecho y el codo derecho",
+        "required": true
       },
       "rightKnee": {
-        "expected": 175,
+        "name": "rodilla izquierda",
+        "expected": 178,
         "points": [23, 25, 27],
-        "Descripcion": "Ángulo entre la cadera derecha, la rodilla derecha y el tobillo derecho"
+        "message": "Ángulo entre la cadera derecha, la rodilla derecha y el tobillo derecho",
+        "required": true
       },
       "leftKnee": {
-        "expected": 175,
+        "name": "rodilla derecha",
+        "expected": 178,
         "points": [24, 26, 28],
-        "Descripcion": "Ángulo entre la cadera izquierda, la rodilla izquierda y el tobillo izquierdo"
+        "message": "Ángulo entre la cadera izquierda, la rodilla izquierda y el tobillo izquierdo",
+        "required": true
       },
       "rightHip": {
+        "name": "cadera izquierda",
         "expected": 175,
         "points": [11, 23, 25],
-        "Descripcion": "Ángulo entre el hombro derecho, la cadera derecha y la rodilla derecha"
+        "message": "Ángulo entre el hombro derecho, la cadera derecha y la rodilla derecha",
+        "required": true
       },
       "leftHip": {
-        "expected": 175,
+        "name": "cadera derecha",
+        "expected": 170,
         "points": [12, 24, 26],
-        "Descripcion": "Ángulo entre el hombro izquierdo, la cadera izquierda y la rodilla izquierda"
+        "message": "Ángulo entre el hombro izquierdo, la cadera izquierda y la rodilla izquierda",
+        "required": true
       }
     },
-    "tolerance": 10
+    "tolerance": 15,
+    "time": 2
   },
   "Postura-Box-2": {
-    "imageName": "assets/postures/box/box3.png",
+    "imageName": "assets/postures/box/box2.png",
     "instruction": "Coloca los puños a la altura de tu rostro",
     "angles": {
       "rightElbow": {
-        "expected": 40,
+        "name": "codo izquierdo",
+        "expected": 8,
         "points": [11, 13, 15],
-        "Descripcion": "Ángulo entre el hombro derecho, el codo derecho y la muñeca derecha",
-        "Nota": "No relevante para esta postura, verificar si debe ser ignorado."
+        "message": "Ángulo entre el hombro derecho, el codo derecho y la muñeca derecha",
+        "required": true
       },
       "leftElbow": {
-        "expected": 40,
+        "name": "codo derecho",
+        "expected": 18,
         "points": [12, 14, 16],
-        "Descripcion": "Ángulo entre el hombro izquierdo, el codo izquierdo y la muñeca izquierda",
-        "Nota": "No relevante para esta postura, verificar si debe ser ignorado."
+        "message": "Ángulo entre el hombro izquierdo, el codo izquierdo y la muñeca izquierda",
+        "required": true
+      },
+      "leftShoulder": {
+        "name": "hombro izquierdo",
+        "expected": 13,
+        "points": [23, 11, 13],
+        "message": "Ángulo entre la cadera izquierda, el hombro izquierdo y el codo izquierdo",
+        "required": true
+      },
+      "rightShoulder": {
+        "name": "hombro derecho",
+        "expected": 5,
+        "points": [24, 12, 14],
+        "message": "Ángulo entre la cadera derecha, el hombro derecho y el codo derecho",
+        "required": true
       },
       "rightKnee": {
-        "expected": 170,
+        "name": "rodilla izquierda",
+        "expected": 175,
         "points": [24, 26, 28],
-        "Descripcion": "Ángulo de la rodilla derecha (cadera-rodilla-tobillo)"
+        "message": "Ángulo de la rodilla derecha (cadera-rodilla-tobillo)",
+        "required": true
       },
       "leftKnee": {
-        "expected": 150,
+        "name": "rodilla derecha",
+        "expected": 178,
         "points": [23, 25, 27],
-        "Descripcion": "Ángulo de la rodilla izquierda (cadera-rodilla-tobillo)"
+        "message": "Ángulo de la rodilla izquierda (cadera-rodilla-tobillo)",
+        "required": true
       },
       "rightHip": {
-        "expected": 175,
+        "name": "cadera izquierda",
+        "expected": 164,
         "points": [12, 24, 26],
-        "Descripcion": "Ángulo de la cadera derecha (hombro-cadera-rodilla)"
+        "message": "Ángulo de la cadera derecha (hombro-cadera-rodilla)",
+        "required": true
       },
       "leftHip": {
+        "name": "cadera derecha",
         "expected": 175,
         "points": [11, 23, 25],
-        "Descripcion": "Ángulo de la cadera izquierda (hombro-cadera-rodilla)"
+        "message": "Ángulo de la cadera izquierda (hombro-cadera-rodilla)",
+        "required": true
       }
     },
-    "tolerance": 10
+    "tolerance": 15,
+    "time": 3
+  },
+  "Postura-Box-3": {
+    "imageName": "assets/postures/box/box3.png",
+    "instruction": "Mantén el compás abierto y levanta los puños a la altura de tu rostro",
+    "angles": {
+      "rightElbow": {
+        "name": "codo izquierdo",
+        "expected": 40,
+        "points": [11, 13, 15],
+        "message": "Ángulo entre el hombro derecho, el codo derecho y la muñeca derecha",
+        "required": true
+      },
+      "leftElbow": {
+        "name": "codo derecho",
+        "expected": 40,
+        "points": [12, 14, 16],
+        "message": "Ángulo entre el hombros izquierdo, el codo izquierdo y la muñeca izquierda",
+        "required": true
+      },
+      "leftShoulder": {
+        "name": "hombro izquierdo",
+        "expected": 23,
+        "points": [23, 11, 13],
+        "message": "Ángulo entre la cadera izquierda, el hombro izquierdo y el codo izquierdo",
+        "required": true
+      },
+      "rightShoulder": {
+        "name": "hombro derecho",
+        "expected": 23,
+        "points": [24, 12, 14],
+        "message": "Ángulo entre la cadera derecha, el hombro derecho y el codo derecho",
+        "required": true
+      },
+      "rightKnee": {
+        "name": "rodilla izquierda",
+        "expected": 155,
+        "points": [23, 25, 27],
+        "message": "Ángulo entre la cadera derecha, la rodilla derecha y el tobillo derecho",
+        "required": true
+      },
+      "leftKnee": {
+        "name": "rodilla derecha",
+        "expected": 170,
+        "points": [24, 26, 28],
+        "message": "Ángulo entre la cadera izquierda, la rodilla izquierda y el tobillo izquierdo",
+        "required": true
+      },
+      "rightHip": {
+        "name": "cadera izquierda",
+        "expected": 180,
+        "points": [11, 23, 25],
+        "message": "Ángulo entre el hombro derecho, la cadera derecha y la rodilla derecha",
+        "required": true
+      },
+      "leftHip": {
+        "name": "cadera derecha",
+        "expected": 175,
+        "points": [12, 24, 26],
+        "message": "Ángulo entre el hombro izquierdo, la cadera izquierda y la rodilla izquierda",
+        "required": true
+      }
+    },
+    "tolerance": 15,
+    "time": 3
   }
 }
