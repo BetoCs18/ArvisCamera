@@ -12,6 +12,7 @@ interface AngleData {
   expected: number;
   points: [number, number, number]; // Tres índices que forman el ángulo
 }
+
 class ObservableNumber{
   private _value: number = 0;
   private listeners: ((newValue: number) => void)[] = [];
@@ -392,11 +393,11 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     this.http.get('assets/mediapipe/pattern/test-angle-routine.json').subscribe(
       data => {
         this.jsonData = data;
-        this.models = Object.keys(this.jsonData).map(key => ({ name: key, coordenadas: this.jsonData[key] }));
-        console.log(this.models[0].coordenadas);
+        this.models = Object.keys(this.jsonData).map(key => ({ name: key, content: this.jsonData[key] }));
+        console.log(this.models[0].content);
         if(this.selectedModel == null){
           this.selectedModel = this.models[this.stepNum];
-          console.log(this.selectedModel.coordenadas.instruction);
+          console.log(this.selectedModel.content.instruction);
         }
       },
       error => {
@@ -442,8 +443,8 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   onModelSelect(selectedModel: any) {
     // Puedes asignar el modelo y la URL a propiedades de la clase si es necesario
     //this.selectedModel = selectedModel;
-    this.modelImageUrl = selectedModel.coordenadas.imageName;
-    this.step = selectedModel.coordenadas.instruction;
+    this.modelImageUrl = selectedModel.content.imageName;
+    this.step = selectedModel.content.instruction;
   }
 
   // private onResults(results: PoseLandmarkerResult) {
@@ -650,8 +651,8 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     this.errorsPose = 0;
     this.errorsPosePoints = '';
 
-    const tolerance = selectedModel.coordenadas.tolerance;
-    const angles = selectedModel.coordenadas.angles;
+    const tolerance = selectedModel.content.tolerance;
+    const angles = selectedModel.content.angles;
 
     for (const [angleName, angleData] of Object.entries(angles) as [string, AngleData][]) {
       const [indexA, indexB, indexC] = angleData.points;
