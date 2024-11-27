@@ -78,6 +78,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   frame = 0;
   progressColor: string = 'danger';
   private poseResult = new ObservableNumber();
+  message = '';
 
   constructor(public sanitizer: DomSanitizer, private platform: Platform, private http: HttpClient) {}
 
@@ -377,7 +378,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
           console.error("Error al detectar poses con mediapipe: ", error);
         }
       }
-    }, 1000 / 17); // Frecuencia de actualización ajustable
+    }, 1000 / 19); // Frecuencia de actualización ajustable
   }
 
   stopImageRefresh(){

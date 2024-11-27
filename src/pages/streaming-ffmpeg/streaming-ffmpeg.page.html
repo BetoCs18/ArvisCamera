@@ -61,6 +61,11 @@
       </ng-template>
     </ion-modal> -->
   </div>
+  <div class="pose-evaluation">
+    <ion-card color="primary" class="ion-padding">
+      <ion-text>{{message}}</ion-text>
+    </ion-card>
+  </div>
   <div class="progress-value" *ngIf="open">
     <ion-progress-bar #progressBar [value]="progress" color="{{progressColor}}"></ion-progress-bar>
     <span>{{statusPose}}</span>
