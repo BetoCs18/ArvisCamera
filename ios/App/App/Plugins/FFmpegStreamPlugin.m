@@ -10,4 +10,5 @@
 
 CAP_PLUGIN(FFmpegStream, "FFmpegStream",
            CAP_PLUGIN_METHOD(startStream, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(stopStream, CAPPluginReturnPromise);
 )
