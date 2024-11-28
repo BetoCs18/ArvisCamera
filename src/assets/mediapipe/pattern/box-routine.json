@@ -5,6 +5,7 @@
     "angles": {
       "rightElbow": {
         "name": "codo izquierdo",
+        "options": ["cerrar", "arbir"],
         "expected": 5,
         "points": [11, 13, 15],
         "message": "Ángulo entre el hombro derecho, el codo derecho y la muñeca derecha",
@@ -12,6 +13,7 @@
       },
       "leftElbow": {
         "name": "codo derecho",
+        "options": ["cerrar", "arbir"],
         "expected": 15,
         "points": [12, 14, 16],
         "message": "Ángulo entre el hombros izquierdo, el codo izquierdo y la muñeca izquierda",
@@ -19,6 +21,7 @@
       },
       "leftShoulder": {
         "name": "hombro izquierdo",
+        "options": ["cerrar", "abrir"],
         "expected": 5,
         "points": [23, 11, 13],
         "message": "Ángulo entre la cadera izquierda, el hombro izquierdo y el codo izquierdo",
@@ -26,6 +29,7 @@
       },
       "rightShoulder": {
         "name": "hombro derecho",
+        "options": ["cerrar", "abrir"],
         "expected": 17,
         "points": [24, 12, 14],
         "message": "Ángulo entre la cadera derecha, el hombro derecho y el codo derecho",
@@ -33,6 +37,7 @@
       },
       "rightKnee": {
         "name": "rodilla izquierda",
+        "options": ["flexionar", "estirar"],
         "expected": 178,
         "points": [23, 25, 27],
         "message": "Ángulo entre la cadera derecha, la rodilla derecha y el tobillo derecho",
@@ -40,28 +45,31 @@
       },
       "leftKnee": {
         "name": "rodilla derecha",
+        "options": ["flexionar", "estirar"],
         "expected": 178,
         "points": [24, 26, 28],
         "message": "Ángulo entre la cadera izquierda, la rodilla izquierda y el tobillo izquierdo",
         "required": true
       },
       "rightHip": {
-        "name": "cadera izquierda",
+        "name": "pierna izquierda",
+        "options": ["abrir", "cerrar"],
         "expected": 175,
         "points": [11, 23, 25],
         "message": "Ángulo entre el hombro derecho, la cadera derecha y la rodilla derecha",
         "required": true
       },
       "leftHip": {
-        "name": "cadera derecha",
+        "name": "pierna derecha",
+        "options": ["abrir", "cerrar"],
         "expected": 170,
         "points": [12, 24, 26],
         "message": "Ángulo entre el hombro izquierdo, la cadera izquierda y la rodilla izquierda",
         "required": true
       }
     },
-    "tolerance": 15,
-    "time": 2
+    "tolerance": 10,
+    "time": 5
   },
   "Postura-Box-2": {
     "imageName": "assets/postures/box/box2.png",
@@ -69,6 +77,7 @@
     "angles": {
       "rightElbow": {
         "name": "codo izquierdo",
+        "options": ["cerrar", "arbir"],
         "expected": 8,
         "points": [11, 13, 15],
         "message": "Ángulo entre el hombro derecho, el codo derecho y la muñeca derecha",
@@ -76,6 +85,7 @@
       },
       "leftElbow": {
         "name": "codo derecho",
+        "options": ["cerrar", "arbir"],
         "expected": 18,
         "points": [12, 14, 16],
         "message": "Ángulo entre el hombro izquierdo, el codo izquierdo y la muñeca izquierda",
@@ -83,6 +93,7 @@
       },
       "leftShoulder": {
         "name": "hombro izquierdo",
+        "options": ["cerrar", "abrir"],
         "expected": 13,
         "points": [23, 11, 13],
         "message": "Ángulo entre la cadera izquierda, el hombro izquierdo y el codo izquierdo",
@@ -90,42 +101,47 @@
       },
       "rightShoulder": {
         "name": "hombro derecho",
+        "options": ["cerrar", "abrir"],
         "expected": 5,
         "points": [24, 12, 14],
         "message": "Ángulo entre la cadera derecha, el hombro derecho y el codo derecho",
         "required": true
       },
-      "rightKnee": {
-        "name": "rodilla izquierda",
-        "expected": 175,
-        "points": [24, 26, 28],
-        "message": "Ángulo de la rodilla derecha (cadera-rodilla-tobillo)",
-        "required": true
-      },
       "leftKnee": {
-        "name": "rodilla derecha",
+        "name": "rodilla izquierda",
+        "options": ["flexionar", "estirar"],
         "expected": 178,
         "points": [23, 25, 27],
         "message": "Ángulo de la rodilla izquierda (cadera-rodilla-tobillo)",
         "required": true
       },
-      "rightHip": {
-        "name": "cadera izquierda",
-        "expected": 164,
-        "points": [12, 24, 26],
-        "message": "Ángulo de la cadera derecha (hombro-cadera-rodilla)",
+      "rightKnee": {
+        "name": "rodilla derecha",
+        "options": ["flexionar", "estirar"],
+        "expected": 175,
+        "points": [24, 26, 28],
+        "message": "Ángulo de la rodilla derecha (cadera-rodilla-tobillo)",
         "required": true
       },
       "leftHip": {
-        "name": "cadera derecha",
+        "name": "pierna izquierda",
+        "options": ["abrir", "cerrar"],
         "expected": 175,
         "points": [11, 23, 25],
         "message": "Ángulo de la cadera izquierda (hombro-cadera-rodilla)",
         "required": true
+      },
+      "rightHip": {
+        "name": "pierna derecha",
+        "options": ["abrir", "cerrar"],
+        "expected": 164,
+        "points": [12, 24, 26],
+        "message": "Ángulo de la cadera derecha (hombro-cadera-rodilla)",
+        "required": true
       }
     },
-    "tolerance": 15,
-    "time": 3
+    "tolerance": 10,
+    "time": 5
   },
   "Postura-Box-3": {
     "imageName": "assets/postures/box/box3.png",
@@ -133,6 +149,7 @@
     "angles": {
       "rightElbow": {
         "name": "codo izquierdo",
+        "options": ["cerrar", "arbir"],
         "expected": 40,
         "points": [11, 13, 15],
         "message": "Ángulo entre el hombro derecho, el codo derecho y la muñeca derecha",
@@ -140,6 +157,7 @@
       },
       "leftElbow": {
         "name": "codo derecho",
+        "options": ["cerrar", "arbir"],
         "expected": 40,
         "points": [12, 14, 16],
         "message": "Ángulo entre el hombros izquierdo, el codo izquierdo y la muñeca izquierda",
@@ -147,6 +165,7 @@
       },
       "leftShoulder": {
         "name": "hombro izquierdo",
+        "options": ["cerrar", "abrir"],
         "expected": 23,
         "points": [23, 11, 13],
         "message": "Ángulo entre la cadera izquierda, el hombro izquierdo y el codo izquierdo",
@@ -154,6 +173,7 @@
       },
       "rightShoulder": {
         "name": "hombro derecho",
+        "options": ["cerrar", "abrir"],
         "expected": 23,
         "points": [24, 12, 14],
         "message": "Ángulo entre la cadera derecha, el hombro derecho y el codo derecho",
@@ -161,6 +181,7 @@
       },
       "rightKnee": {
         "name": "rodilla izquierda",
+        "options": ["flexionar", "estirar"],
         "expected": 155,
         "points": [23, 25, 27],
         "message": "Ángulo entre la cadera derecha, la rodilla derecha y el tobillo derecho",
@@ -168,27 +189,30 @@
       },
       "leftKnee": {
         "name": "rodilla derecha",
+        "options": ["flexionar", "estirar"],
         "expected": 170,
         "points": [24, 26, 28],
         "message": "Ángulo entre la cadera izquierda, la rodilla izquierda y el tobillo izquierdo",
         "required": true
       },
       "rightHip": {
-        "name": "cadera izquierda",
+        "name": "pierna izquierda",
+        "options": ["abrir", "cerrar"],
         "expected": 180,
         "points": [11, 23, 25],
         "message": "Ángulo entre el hombro derecho, la cadera derecha y la rodilla derecha",
         "required": true
       },
       "leftHip": {
-        "name": "cadera derecha",
+        "name": "pierna derecha",
+        "options": ["abrir", "cerrar"],
         "expected": 175,
         "points": [12, 24, 26],
         "message": "Ángulo entre el hombro izquierdo, la cadera izquierda y la rodilla izquierda",
         "required": true
       }
     },
-    "tolerance": 15,
-    "time": 3
+    "tolerance": 10,
+    "time": 5
   }
 }

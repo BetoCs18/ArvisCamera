@@ -69,7 +69,7 @@
       }
     },
     "tolerance": 20,
-    "time": 2
+    "time": 3
   },
   "Brazo-izq-arriba": {
     "imageName": "assets/postures/test/tpose1.png",
@@ -141,7 +141,7 @@
       }
     },
     "tolerance": 20,
-    "time": 2
+    "time": 3
   },
   "Brazo-der-arriba": {
     "imageName": "assets/postures/test/tpose2.png",
@@ -213,6 +213,6 @@
       }
     },
     "tolerance": 20,
-    "time": 2
+    "time": 3
   }
 }

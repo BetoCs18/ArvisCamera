@@ -82,14 +82,20 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   modalProgress = 1;
   frame = 0;
   progressColor: string = 'danger';
-  private poseResult = new ObservableNumber();
+  poseResult!: ObservableNumber;
   message = '';
+  seconds!: number;
+  newInterval: any;
+  estimation: number = 0;
 
-  constructor(public sanitizer: DomSanitizer, private platform: Platform, private http: HttpClient) {}
+  constructor(public sanitizer: DomSanitizer, private platform: Platform, private http: HttpClient) {
+    this.poseResult = new ObservableNumber();
+  }
 
   ngAfterViewInit() {
     this.initResizeObserver();
     this.getJsonModels();
+    this.initValueObserver();
   }
 
   initResizeObserver(){
@@ -103,6 +109,18 @@ export class StreamingFfmpegPage implements AfterViewInit  {
       });
       this.resizeObserver.observe(this.inputImage.nativeElement);
     }
+  }
+
+  initValueObserver(){
+    this.poseResult.onChange((newValue) =>{
+      if(newValue === 1){
+        this.statusPose = 'Buena postura';
+        this.setCountDownBar(this.seconds);
+      }else{
+        this.statusPose = 'Mala postura';
+        this.cancelCountDownBar();
+      }
+    })
   }
 
   onImageLoad(){
@@ -342,25 +360,11 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     }
   }
 
-  async setSeconds(seconds: number){
-    let timeZero = 0;
-    while (timeZero < seconds){
-      timeZero += await this.oneSecond();
-    }
-    return;
-  }
-
-  async oneSecond(): Promise<number>{
-    return new Promise((resolve) =>{
-      setTimeout(() => resolve(1), 1000);
-    })
-  }
-
   private async startImageRefresh() {
     // Ejecuta el refresco de imagen a intervalos
     //this.getJsonModels();
     this.openModal();
-    this.modalInterval = setInterval(() => {
+    /*this.modalInterval = setInterval(() => {
       this.modalProgress = this.modalProgress - 0.07;
       if(this.modalProgress <= 0){
         this.modalProgress = 1;
@@ -368,22 +372,27 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         this.modalInterval = null;
         this.closeModal();
       }
-    }, 1000 / 20);
+    }, 1000 / 20);*/
+    this.setExerciseBar(5);
     this.onModelSelect(this.selectedModel);
     this.intervalId = setInterval(async () => {
       const imageElement = await this.getImageUrl();
       if (imageElement) {
         this.dynamicImageUrl = this.sanitizer.bypassSecurityTrustUrl(`${imageElement.src}`);
-        try{
-          const poseLandmarkerResult = this.poseLandmarker.detect(imageElement);
-          if (poseLandmarkerResult) {
-            this.onResultsTest(poseLandmarkerResult, this.selectedModel);
+        this.estimation++;
+        if(this.estimation >= 2){
+          try{
+            const poseLandmarkerResult = this.poseLandmarker.detect(imageElement);
+            if (poseLandmarkerResult) {
+              this.onResultsTest(poseLandmarkerResult, this.selectedModel);
+            }
+          }catch (error){
+            console.error("Error al detectar poses con mediapipe: ", error);
           }
-        }catch (error){
-          console.error("Error al detectar poses con mediapipe: ", error);
+          this.estimation = 0;
         }
       }
-    }, 1000 / 19); // Frecuencia de actualización ajustable
+    }, 1000 / 24); // Frecuencia de actualización ajustable
   }
 
   stopImageRefresh(){
@@ -394,13 +403,14 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   }
 
   private getJsonModels(){
-    this.http.get('assets/mediapipe/pattern/test-angle-routine.json').subscribe(
+    this.http.get('assets/mediapipe/pattern/box-routine.json').subscribe(
       data => {
         this.jsonData = data;
         this.models = Object.keys(this.jsonData).map(key => ({ name: key, content: this.jsonData[key] }));
         console.log(this.models[0].content);
         if(this.selectedModel == null){
           this.selectedModel = this.models[this.stepNum];
+          this.seconds = this.selectedModel.content.time;
           console.log(this.selectedModel.content.instruction);
         }
       },
@@ -412,16 +422,89 @@ export class StreamingFfmpegPage implements AfterViewInit  {
 
   changeExercise(){
     this.stopImageRefresh();
+    if(this.newInterval){
+      clearInterval(this.newInterval);
+      this.newInterval = null;
+    }
     this.done = true;
     setTimeout(() =>{
       this.done = false;
-    },1500);
-    this.progress = 0;
+    },1000);
+    this.poseResult.value = 0;
     this.stepNum++;
-    if(this.stepNum < this.models.length){
+    if(this.stepNum >= this.models.length){
+      this.message = 'entro a rutina finalizada';
+      this.finishRoutine();
+    }else{
       this.selectedModel = this.models[this.stepNum];
       this.startImageRefresh();
     }
+  }
+
+  async setCountDownBar(seconds: number){
+    const interval = (1 / seconds);
+    this.newInterval = setInterval(async () =>{
+      this.progress = Math.min(this.progress + interval, 1);
+      this.progressColor = this.progress > 0.75 ? 'success' : this.progress > 0.5 ? 'warning' : 'primary';
+      if(this.progress === 1){
+        this.changeExercise();
+      }
+    }, 1000)
+    /*this.progress = Math.min(this.progress + interval, 1);
+    this.progressColor = this.progress > 0.75 ? 'success' : this.progress > 0.5 ? 'warning' : 'primary';
+    if(this.progress === 1){
+      this.changeExercise();
+    }*/
+  }
+
+  finishRoutine(){
+    this.canvasCtx.clearRect(0, 0, this.outputCanvas.width, this.outputCanvas.height);
+    this.message = 'Rutina finalizada';
+    this.stepNum = 0;
+    this.selectedModel = this.models[this.stepNum];
+    this.dynamicImageUrl = '../assets/Portada_Fondo_-_Camara.png';
+  }
+
+  cancelCountDownBar(){
+    if(this.newInterval){
+      clearInterval(this.newInterval);
+      this.newInterval = null;
+    }
+    this.progress = 0;
+    this.progressColor = 'danger';
+  }
+
+  async setExerciseBar(seconds: number){
+    const interval = (1/seconds);
+    let timeZero = 0;
+    while(timeZero < seconds){
+      timeZero += await this.oneSecond();
+      this.modalProgress -= interval;
+    }
+    this.closeModal();
+  }
+
+  async setSeconds(seconds: number){
+    let timeZero = 0;
+    while (timeZero < seconds){
+      timeZero += await this.oneSecond();
+    }
+    return;
+  }
+
+  async oneTimeSecond():Promise<number>{
+    const currentDate = Date.now();
+    let time = 0;
+    while(time < 1000){
+      time = (Date.now() - currentDate);
+    }
+    return 1;
+  }
+
+  async oneSecond(): Promise<number>{
+    return new Promise((resolve) =>{
+      setTimeout(() => resolve(1), 1000);
+    })
   }
 
   async openModal(){
@@ -447,6 +530,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   onModelSelect(selectedModel: any) {
     // Puedes asignar el modelo y la URL a propiedades de la clase si es necesario
     //this.selectedModel = selectedModel;
+    this.seconds = this.selectedModel.content.time;
     this.modelImageUrl = selectedModel.content.imageName;
     this.step = selectedModel.content.instruction;
   }
@@ -691,21 +775,12 @@ export class StreamingFfmpegPage implements AfterViewInit  {
 
     this.message = this.errorsPosePoints;
 
-    landmarksTrue[0].push(...results.landmarks[0].filter(element => !landmarksFalse[0].includes(element)));
+    landmarksTrue[0].push(...results.landmarks[0].slice(11).filter(element => !landmarksFalse[0].includes(element)));
 
     if (this.errorsPose === 0) {
-      this.statusPose = 'Buena postura';
-      //this.FooterColor = 'success';
-      this.progress = Math.min(this.progress + 0.1, 1);
-      this.progressColor = this.progress > 0.75 ? 'success' : this.progress > 0.5 ? 'warning' : 'primary';
-      if(this.progress === 1){
-        this.changeExercise();
-      }
+      this.poseResult.value = 1;
     } else {
-      this.statusPose = 'Mala postura';
-      //this.FooterColor = 'warning';
-      this.progress = 0;
-      this.progressColor = 'danger';
+      this.poseResult.value = 0;
     }
 
     this.canvasCtx.save();

@@ -34,7 +34,7 @@ public class FFmpegStreamPlugin extends Plugin{
     String ffmpegCommand = "-y -re -rtsp_transport tcp -i " + rtspUrl +
                             " -max_delay 4000000 -analyzeduration 10000000" +
                             " -s 1024x768" +
-                            " -vf \"blackdetect,blackframe=amount=98:threshold=32,fps=20\" "+
+                            " -vf \"blackdetect,blackframe=amount=98:threshold=32,fps=30\" "+
                             " -fflags +discardcorrupt -vsync cfr -q:v 2" +
                             " -update 1" +
                             " -b:v 1M -err_detect explode " +
