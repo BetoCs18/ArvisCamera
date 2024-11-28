@@ -19,7 +19,7 @@ public class FFmpegStreamPlugin extends Plugin{
   public void startStream(PluginCall call) {
     String rtspUrl = call.getString("rtspUrl");
     File cacheDir = getContext().getCacheDir();
-    String relativePath = "live/stream.jpg";
+    String relativePath = "live/stream.jpeg";
     File outputfile = new File(cacheDir, relativePath);
     String outputFilePath = outputfile.getAbsolutePath();
 
@@ -33,11 +33,12 @@ public class FFmpegStreamPlugin extends Plugin{
     // Comando FFmpeg para convertir RTSP a HLS (HTTP Live Streaming)
     String ffmpegCommand = "-y -re -rtsp_transport tcp -i " + rtspUrl +
                             " -max_delay 4000000 -analyzeduration 10000000" +
-                            " -s 1024x768" +
-                            " -vf \"blackdetect,blackframe=amount=98:threshold=32,fps=30\" "+
-                            " -fflags +discardcorrupt -vsync cfr -q:v 2" +
+                            //" -s 1024x768" +
+                            " -vf \"scale=640:480,fps=30\" "+
+                            " -compression_level 2" +
+                            " -fflags +discardcorrupt -vsync cfr -q:v 15" +
                             " -update 1" +
-                            " -b:v 1M -err_detect explode " +
+                            " -b:v 500k -err_detect explode " +
                             outputFilePath;
 
     Log.d("FFmpegStream", "Inicia sesión");

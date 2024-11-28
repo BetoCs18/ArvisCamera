@@ -39,7 +39,7 @@ export class HomePage implements OnInit {
       if(!fileExists){
         const emptyImage = '';
         await Filesystem.writeFile({
-          path: 'live/stream.jpg',
+          path: 'live/stream.jpeg',
           data: emptyImage,
           directory: Directory.Cache
         });

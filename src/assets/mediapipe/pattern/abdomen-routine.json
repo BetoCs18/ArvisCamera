@@ -1,19 +1,19 @@
 {
-  "T-pose": {
+  "Plancha": {
     "imageName": "assets/postures/test/tpose.png",
-    "instruction": "Junta las piernas y estira los brazos",
+    "instruction": "Colócate en posición de plancha apoyándote sobre los codos y estirando las piernas",
     "angles": {
-      "rightElbow": {
+      "leftElbow": {
         "name": "codo izquierdo",
-        "options": ["bajar", "levantar"],
+        "options": ["cerrar", "abrir"],
         "expected": 180,
         "points": [11, 13, 15],
         "message": "Ángulo entre el hombro derecho, el codo derecho y la muñeca derecha",
         "required": true
       },
-      "leftElbow": {
+      "rightElbow": {
         "name": "codo derecho",
-        "options": ["bajar", "levantar"],
+        "options": ["cerrar", "abrir"],
         "expected": 180,
         "points": [12, 14, 16],
         "message": "Ángulo entre el hombro izquierdo, el codo izquierdo y la muñeca izquierda",

@@ -224,9 +224,9 @@ export class StreamingFfmpegPage implements AfterViewInit  {
           },
           runningMode: 'IMAGE',
           numPoses: 1,
-          minPoseDetectionConfidence: 0.6,
-          minPosePresenceConfidence: 0.6,
-          minTrackingConfidence: 0.6,
+          minPoseDetectionConfidence: 0.7,
+          minPosePresenceConfidence: 0.7,
+          minTrackingConfidence: 0.7,
           outputSegmentationMasks: false
         }
       )
@@ -252,9 +252,9 @@ export class StreamingFfmpegPage implements AfterViewInit  {
           },
           runningMode: 'IMAGE',
           numPoses: 1,
-          minPoseDetectionConfidence: 0.6,
-          minPosePresenceConfidence: 0.6,
-          minTrackingConfidence: 0.6,
+          minPoseDetectionConfidence: 0.7,
+          minPosePresenceConfidence: 0.7,
+          minTrackingConfidence: 0.7,
           outputSegmentationMasks: false
         }
       )
@@ -268,7 +268,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   private async getImageUrl(): Promise<HTMLImageElement | null>{
     try{
       const result = await Filesystem.readFile({
-        path: 'live/stream.jpg', // Ruta relativa dentro del directorio de caché
+        path: 'live/stream.jpeg', // Ruta relativa dentro del directorio de caché
         directory: Directory.Cache,
       });
       if (!result.data || typeof result.data !== 'string' || result.data.length === 0){
@@ -362,19 +362,8 @@ export class StreamingFfmpegPage implements AfterViewInit  {
 
   private async startImageRefresh() {
     // Ejecuta el refresco de imagen a intervalos
-    //this.getJsonModels();
-    this.openModal();
-    /*this.modalInterval = setInterval(() => {
-      this.modalProgress = this.modalProgress - 0.07;
-      if(this.modalProgress <= 0){
-        this.modalProgress = 1;
-        clearInterval(this.modalInterval);
-        this.modalInterval = null;
-        this.closeModal();
-      }
-    }, 1000 / 20);*/
-    this.setExerciseBar(5);
     this.onModelSelect(this.selectedModel);
+    this.setExerciseModal(5);
     this.intervalId = setInterval(async () => {
       const imageElement = await this.getImageUrl();
       if (imageElement) {
@@ -384,7 +373,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
           try{
             const poseLandmarkerResult = this.poseLandmarker.detect(imageElement);
             if (poseLandmarkerResult) {
-              this.onResultsTest(poseLandmarkerResult, this.selectedModel);
+              this.onResults(poseLandmarkerResult, this.selectedModel);
             }
           }catch (error){
             console.error("Error al detectar poses con mediapipe: ", error);
@@ -392,7 +381,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
           this.estimation = 0;
         }
       }
-    }, 1000 / 24); // Frecuencia de actualización ajustable
+    }, 50); // Frecuencia de actualización ajustable
   }
 
   stopImageRefresh(){
@@ -410,7 +399,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         console.log(this.models[0].content);
         if(this.selectedModel == null){
           this.selectedModel = this.models[this.stepNum];
-          this.seconds = this.selectedModel.content.time;
+          //this.seconds = this.selectedModel.content.time;
           console.log(this.selectedModel.content.instruction);
         }
       },
@@ -433,7 +422,6 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     this.poseResult.value = 0;
     this.stepNum++;
     if(this.stepNum >= this.models.length){
-      this.message = 'entro a rutina finalizada';
       this.finishRoutine();
     }else{
       this.selectedModel = this.models[this.stepNum];
@@ -450,11 +438,6 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         this.changeExercise();
       }
     }, 1000)
-    /*this.progress = Math.min(this.progress + interval, 1);
-    this.progressColor = this.progress > 0.75 ? 'success' : this.progress > 0.5 ? 'warning' : 'primary';
-    if(this.progress === 1){
-      this.changeExercise();
-    }*/
   }
 
   finishRoutine(){
@@ -474,9 +457,10 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     this.progressColor = 'danger';
   }
 
-  async setExerciseBar(seconds: number){
+  async setExerciseModal(seconds: number){
     const interval = (1/seconds);
     let timeZero = 0;
+    this.openModal();
     while(timeZero < seconds){
       timeZero += await this.oneSecond();
       this.modalProgress -= interval;
@@ -529,83 +513,10 @@ export class StreamingFfmpegPage implements AfterViewInit  {
 
   onModelSelect(selectedModel: any) {
     // Puedes asignar el modelo y la URL a propiedades de la clase si es necesario
-    //this.selectedModel = selectedModel;
     this.seconds = this.selectedModel.content.time;
     this.modelImageUrl = selectedModel.content.imageName;
     this.step = selectedModel.content.instruction;
   }
-
-  // private onResults(results: PoseLandmarkerResult) {
-  //   const allowedIndices = new Set([0, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28]);
-
-  //   if (!this.selectedModel || !this.selectedModel.coordenadas || !this.selectedModel.coordenadas.landmarks) {
-  //     console.error('Modelo de referencia no válido o no seleccionado.');
-  //     return;
-  //   }
-
-  //   if (!this.canvasCtx) return;
-  //   this.canvasCtx.save();
-  //   this.canvasCtx.clearRect(0, 0, this.outputCanvas.width, this.outputCanvas.height);
-
-  //   for (const landmark of results.landmarks) {
-  //     this.errorsPose = 0;
-  //     this.errorsPosePoints = '';
-
-  //     for (const modelPoint of this.selectedModel.coordenadas.landmarks) {
-  //       const index = modelPoint.index;
-
-  //       // Verificar si el índice está permitido
-  //       if (!allowedIndices.has(index)) {
-  //         console.log('Index no permitido: ' + index);
-  //         continue;
-  //       }
-
-  //       // Obtenemos el punto correspondiente del resultado actual
-  //       const point = landmark[index];
-  //       const x = point.x * this.outputCanvas.width; // Coordenada x escalada al tamaño del canvas
-  //       const y = point.y * this.outputCanvas.height; // Coordenada y escalada al tamaño del canvas
-  //       const z = point.z; // Profundidad
-
-  //       const tolerance = 40; // Define la tolerancia para x e y
-
-  //       // Calcular diferencias
-  //       const diffX = x - modelPoint.x;
-  //       const diffY = y - modelPoint.y;
-
-  //       // Imprimir diferencias
-  //       console.log(`Index: ${index}, Capturado - X: ${x}, Y: ${y}; Modelo - X: ${modelPoint.x}, Y: ${modelPoint.y}; Diferencia - X: ${diffX}, Y: ${diffY}`);
-
-  //       // Comparar las coordenadas con el rango de tolerancia
-  //       const isXInRange = Math.abs(diffX) <= tolerance;
-  //       const isYInRange = Math.abs(diffY) <= tolerance;
-
-  //       // Contar errores si alguna coordenada está fuera del rango
-  //       if (!(isXInRange && isYInRange)) {
-  //         this.errorsPose += 1;
-  //         this.errorsPosePoints = this.errorsPosePoints + ` Index: ${index} -`;
-  //       }
-
-  //       console.log(`Index: ${index}, x=${x}, y=${y}, z=${z}`);
-  //     }
-
-  //     console.log('Total de Errores: ' + this.errorsPose);
-  //     console.log('Errores: ' + this.errorsPose + ' Points: ' + this.errorsPosePoints);
-  //     if (this.errorsPose <= 3) {
-  //       this.statusPose = 'Buena postura';
-  //       this.FooterColor = 'success';
-  //     } else {
-  //       this.statusPose = 'Mala postura';
-  //       this.FooterColor = 'warning';
-  //     }
-
-  //     this.drawingUtils.drawLandmarks(landmark, {
-  //       radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
-  //     });
-  //     this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS);
-  //   }
-
-  //   this.canvasCtx.restore();
-  // }
 
   private calculateAngle(pointA:any, pointB:any, pointC:any): number {
     const vectorBA = { x: pointA.x - pointB.x, y: pointA.y - pointB.y };
@@ -620,117 +531,6 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   }
 
   private onResults(results: PoseLandmarkerResult, selectedModel: any) {
-    if (!this.canvasCtx) return;
-
-    let landmarksTrue: NormalizedLandmark[][] = results.landmarks;
-    let landmarksFalse: NormalizedLandmark[][] = [];
-    landmarksFalse[0] = [];
-
-    this.canvasCtx.save();
-    this.canvasCtx.clearRect(0, 0, this.outputCanvas.width, this.outputCanvas.height);
-
-    for (const landmark of results.landmarks) {
-      this.errorsPose = 0;
-      this.errorsPosePoints = '';
-
-      // Procesar ángulos del modelo seleccionado
-      for (const [angleName, angleData] of Object.entries(selectedModel.coordenadas.angles) as [string, AngleData][]) {
-        const [indexA, indexB, indexC] = angleData.points;
-
-        // console.log("--------------Modelo----------" + this.selectedModel.name);
-
-        // Validar que los índices existen en los resultados de los landmarks
-        if (!landmark[indexA] || !landmark[indexB] || !landmark[indexC]) {
-          console.warn(`No se encontraron los puntos para calcular el ángulo ${angleName}`);
-          continue;
-        }
-
-        const pointA = landmark[indexA];
-        const pointB = landmark[indexB];
-        const pointC = landmark[indexC];
-
-        const calculatedAngle = this.calculateAngle(pointA, pointB, pointC);
-        const expectedAngle = angleData.expected;
-
-
-        // Verificar si el ángulo está dentro de la tolerancia
-        const isWithinTolerance = Math.abs(calculatedAngle - expectedAngle) <= selectedModel.coordenadas.tolerance;
-        // console.log('isWithinTolerance: ' + isWithinTolerance);
-
-        if (!isWithinTolerance) {
-          this.errorsPose += 1;
-          this.errorsPosePoints += ` ${angleName}`;
-          landmarksFalse[0].push(landmark[indexA]);
-          landmarksFalse[0].push(landmark[indexB]);
-          landmarksFalse[0].push(landmark[indexC]);
-          landmarksTrue[0].splice(indexA);
-          landmarksTrue[0].splice(indexB);
-          landmarksTrue[0].splice(indexC);
-        }
-
-        //console.log(angleName);
-        //console.log(`- Obtenido: ${calculatedAngle}, Esperado: ${expectedAngle}, Diferencia: ${Math.abs(calculatedAngle - expectedAngle)}`);
-
-      }
-
-      // Establecer estado de postura basado en errores
-      if (this.errorsPose <= 1) {
-        this.statusPose = 'Buena postura';
-        //this.FooterColor = 'success';
-        this.progress = this.progress + 0.05;
-        if(this.progress > 0.5){
-          this.progressColor = 'warning';
-        }
-        if(this.progress > 0.75){
-          this.progressColor = 'success';
-        }
-        if(this.progress >= 1){
-          this.changeExercise();
-        }
-        /* Dibujar puntos y conectores en el canvas
-        this.drawingUtils.drawLandmarks(landmark, {color: '#00FF00',
-          fillColor: '#00FF00',
-          lineWidth: 2,
-          radius: 2
-        });
-        this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: '#00FF00', fillColor: '#00FF00', lineWidth: 1.5, radius: 3.5});*/
-      } else {
-        this.statusPose = 'Mala postura';
-        //this.FooterColor = 'warning';
-        this.progress = 0;
-        this.progressColor = 'danger';
-        /* Dibujar puntos y conectores en el canvas
-        this.drawingUtils.drawLandmarks(landmark, {color: '#FF0000',
-          fillColor: '#FF0000',
-          lineWidth: 2,
-          radius: 2
-        });
-        this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: '#FF0000', fillColor: '#FF0000', lineWidth: 1.5, radius: 3.5});*/
-      }
-      this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: 'white', fillColor: 'white', lineWidth: 1.5, radius: 3.5});
-      //console.log('Total de Errores: ' + this.errorsPose + ' Color: ' + this.FooterColor);
-      //console.log('Errores: ' + this.errorsPose + ' Points: ' + this.errorsPosePoints);
-    }
-
-    for(const landmark of landmarksTrue){
-      this.drawingUtils.drawLandmarks(landmark, {color: '#00FF00',
-        fillColor: '#00FF00',
-        lineWidth: 1,
-        radius: 2
-      });
-    }
-
-    for(const landmark of landmarksFalse){
-      this.drawingUtils.drawLandmarks(landmark, {color: '#FF0000',
-        fillColor: '#FF0000',
-        lineWidth: 1,
-        radius: 2
-      });
-    }
-    this.canvasCtx.restore();
-  }
-
-  private onResultsTest(results: PoseLandmarkerResult, selectedModel: any) {
     if (!this.canvasCtx) return;
 
     let landmarksTrue: NormalizedLandmark[][] = [[]];
@@ -763,8 +563,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
       const difference = calculatedAngle - expectedAngle;
 
       // Verificar si el ángulo está dentro de la tolerancia
-      // console.log('isWithinTolerance: ' + isWithinTolerance);
-      if (Math.abs(calculatedAngle - expectedAngle) > tolerance) {
+      if (Math.abs(difference) > tolerance) {
         this.errorsPose++;
         landmarksFalse[0].push(pointA, pointB, pointC);
         this.errorsPosePoints += `- ${(difference > 0 ? angleData.options[0] : angleData.options[1])} ${angleData.name}\n`;
@@ -790,7 +589,11 @@ export class StreamingFfmpegPage implements AfterViewInit  {
       this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {color: 'white', fillColor: 'white', lineWidth: 1.5, radius: 3.5});
     }
 
-    for(const landmark of landmarksTrue){
+    this.drawLandmarks(landmarksTrue, '#00FF00');
+
+    this.drawLandmarks(landmarksFalse, '#FF0000');
+
+    /*for(const landmark of landmarksTrue){
       this.drawingUtils.drawLandmarks(landmark, {color: '#00FF00',
         fillColor: '#00FF00',
         lineWidth: 1,
@@ -804,9 +607,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         lineWidth: 1,
         radius: 2
       });
-    }
-
-
+    }*/
 
     this.canvasCtx.restore();
   }
@@ -823,12 +624,12 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         lineWidth: 1,
         radius: 2,
       });
-      this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {
+      /*this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {
         color: color,
         fillColor: color,
         lineWidth: 1.5,
         radius: 3.5,
-      });
+      });*/
     }
   }
 }
