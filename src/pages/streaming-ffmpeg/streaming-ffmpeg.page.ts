@@ -5,7 +5,9 @@ import { Platform } from '@ionic/angular';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import FFmpegStream from 'src/plugins/ffmpeg-stream.plugin';
-
+import { ActivatedRoute, Router } from '@angular/router';
+import { TextToSpeech } from '@capacitor-community/text-to-speech';
+import { firstValueFrom } from 'rxjs';
 
 // Definición de Tipos
 interface Data {
@@ -55,6 +57,26 @@ class ObservableNumber{
   }
 
   onChange(listener: (newValue: number) => void){
+    this.listeners.push(listener);
+  }
+}
+
+class ObservableBool{
+  private _value: boolean = true;
+  private listeners: ((newValue: boolean) => void)[] = [];
+
+  get value(): boolean{
+    return this._value;
+  }
+
+  set value(newValue: boolean){
+    if (this._value !== newValue){
+      this._value = newValue;
+      this.listeners.forEach((listener) => listener(newValue));
+    }
+  }
+
+  onChange(listener: (newValue: boolean) => void){
     this.listeners.push(listener);
   }
 }
@@ -117,15 +139,18 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   steps: Step[] = [];
   currentExercise!: Exercise;
   currentStep!: Step;
+  speech!: ObservableBool;
 
   constructor(public sanitizer: DomSanitizer, private platform: Platform, private http: HttpClient) {
     this.poseResult = new ObservableNumber();
+    this.speech = new ObservableBool();
   }
 
   ngAfterViewInit() {
     this.initResizeObserver();
     this.getJsonModels();
     this.initValueObserver();
+    this.initBoolObserver();
   }
 
   initResizeObserver(){
@@ -151,6 +176,14 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         this.cancelCountDownBar();
       }
     })
+  }
+
+  initBoolObserver(){
+    /*this.speech.onChange((newValue) =>{
+      if(!newValue){
+        this.ActivateSpeech();
+      }
+    })*/
   }
 
   onImageLoad(){
@@ -394,7 +427,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     // Ejecuta el refresco de imagen a intervalos
     if(!this.evaluationMode)this.evaluationMode = true;
     this.onSelectExercise(this.exerciseNum);
-    this.setExerciseModal(5);
+    await this.setExerciseModal(5);
     this.intervalId = setInterval(async () => {
       const imageElement = await this.getImageUrl();
       if (imageElement) {
@@ -438,17 +471,38 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     );
   }
 
-  private getJsonExercises(path: string){
-    this.http.get(`assets/mediapipe/pattern/${path}`).subscribe(
-      data => {
-        this.jsonData = data;
-        const models = Object.keys(this.jsonData).map(key => ({ name: key, data: this.jsonData[key] }));
-        this.setModels(models[0].data);
-      },
-      error => {
-        console.error('Error al cargar el archivo JSON:', error);
-      }
-    );
+  /*private async getJsonExercises(path: string): Promise<boolean>{
+    try{
+      this.http.get(`assets/mediapipe/pattern/${path}`).subscribe(
+        data => {
+          this.jsonData = data;
+          const models = Object.keys(this.jsonData).map(key => ({ name: key, data: this.jsonData[key] }));
+          //const response = await this.setModels(models[0].data);
+          return true;
+        },
+        error => {
+          console.error('Error al cargar el archivo JSON:', error);
+          return false;
+        }
+      );
+      return true;
+    }catch (error){
+      console.error('Error al cargar el archivo JSON: ', error);
+      return false;
+    }
+  }*/
+
+  async getJsonExercises(path: string): Promise<boolean> {
+    try {
+      const data = await firstValueFrom(this.http.get(`assets/mediapipe/pattern/${path}`));
+      this.jsonData = data;
+      const models = Object.keys(this.jsonData).map(key => ({ name: key, data: this.jsonData[key] }));
+      const response = await this.setModels(models[0].data);
+      return response;
+    } catch (error) {
+      console.error('Error al cargar el archivo JSON:', error);
+      return false;
+    }
   }
 
   changePose(){
@@ -469,9 +523,6 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         this.stepNum = 0;
         this.exerciseNum++;
         this.onSelectExercise(this.exerciseNum);
-        setTimeout(() =>{
-          
-        }, 500);
       }
     }else{
       if(this.evaluationMode){
@@ -519,13 +570,21 @@ export class StreamingFfmpegPage implements AfterViewInit  {
 
   async setExerciseModal(seconds: number){
     const interval = (1/seconds);
+    if(this.progress === 0)this.progress = 1;
     let timeZero = 0;
     this.openModal();
+    this.speak((this.step + this.instruction));
     while(timeZero < seconds){
       timeZero += await this.oneSecond();
       this.modalProgress -= interval;
     }
     this.closeModal();
+  }
+
+  async ActivateSpeech(){
+    setTimeout(() =>{
+      this.speech.value = true;
+    }, 5000);
   }
 
   async setSeconds(seconds: number){
@@ -571,7 +630,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     await modal?.dismiss();
   }
 
-  onRoutineSelect(selectedRoutine: any){
+  async onRoutineSelect(selectedRoutine: any){
     let modelData: Data = {
       name: selectedRoutine.data.name,
       exercises: []
@@ -583,29 +642,42 @@ export class StreamingFfmpegPage implements AfterViewInit  {
       };
       modelData.exercises.push(exerciseData);
     }
-    this.modelData = modelData;
-    for(const exercise of this.modelData.exercises){
-      this.getJsonExercises(exercise.route);
-    }
-    setTimeout(() => {
+    const response = await this.addExercises(modelData);
+    if(response){
       this.onSelectExercise(this.exerciseNum);
-    }, 1000)
+    }
   }
 
-  setModels(data: any){
-    console.log(data);
-    const exercise: Exercise = {
-      name: data.name,
-      steps: data.steps,
-      tolerance: data.tolerance,
-      time: data.time,
-      reps: data.reps,
-      restTime: data.restTime
+  async addExercises(modelData: Data): Promise<boolean>{
+    this.modelData = modelData;
+    for(const exercise of this.modelData.exercises){
+      const addExercise = await this.getJsonExercises(exercise.route);
+      if(!addExercise)console.error('Error al cargar json');
     }
-    this.exercises.push(exercise);
+    return true;
+  }
+
+  async setModels(data: any): Promise<boolean>{
+    try{
+      console.log(data);
+      const exercise: Exercise = {
+        name: data.name,
+        steps: data.steps,
+        tolerance: data.tolerance,
+        time: data.time,
+        reps: data.reps,
+        restTime: data.restTime
+      }
+      this.exercises.push(exercise);
+      return true;
+    }catch (error){
+      console.error('Error al agregar ejercicio', error);
+      return false;
+    }
   }
 
   onSelectExercise(number: number){
+    console.log(this.exercises);
     if(number >= this.exercises.length){
       this.finishRoutine();
     }else{
@@ -692,6 +764,10 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     }
 
     this.message = this.errorsPosePoints;
+    if(this.speech.value){
+      this.speech.value = false;
+      this.speak(this.message);
+    }
 
     landmarksTrue[0].push(...results.landmarks[0].slice(11).filter(element => !landmarksFalse[0].includes(element)));
 
@@ -743,12 +819,26 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         lineWidth: 1,
         radius: 2,
       });
-      /*this.drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {
-        color: color,
-        fillColor: color,
-        lineWidth: 1.5,
-        radius: 3.5,
-      });*/
+    }
+  }
+
+  async speak(instruction: string) {
+    if (instruction.trim()) {
+      instruction.replace("-","");
+      try {
+        await TextToSpeech.speak({
+          text: instruction, // Texto a sintetizar
+          lang: 'es-ES', // Idioma (ejemplo: español)
+          voice: 8,
+          volume: 1.0,
+          rate: 1.0, // Velocidad de la voz (1.0 es normal)
+          pitch: 1.0, // Tono de la voz (1.0 es normal)
+        });
+        console.log('Texto leído correctamente');
+        this.ActivateSpeech();
+      } catch (error) {
+        console.error('Error al sintetizar voz:', error);
+      }
     }
   }
 }
