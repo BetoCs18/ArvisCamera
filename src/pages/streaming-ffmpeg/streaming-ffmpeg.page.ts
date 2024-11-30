@@ -111,6 +111,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   seconds!: number;
   newInterval: any;
   estimation: number = 0;
+  evaluationMode: boolean = true;
   modelData!: Data;
   exercises:Exercise[] = [];
   steps: Step[] = [];
@@ -305,11 +306,11 @@ export class StreamingFfmpegPage implements AfterViewInit  {
         return null;
       }
       const imageElement = await this.loadImage(`data:image/jpeg;base64,${result.data}`)
-      const isTransparent = await this.checkTransparency(imageElement,this.inputCanvas,this.inputCanvasCtx)
+      /*const isTransparent = await this.checkTransparency(imageElement,this.inputCanvas,this.inputCanvasCtx)
       if(isTransparent){
         console.error('La imagen es transparente');
         return null;
-      }
+      }*/
       this.frame++;
       if (this.frame > 2){
         this.testImageUrl = this.sanitizer.bypassSecurityTrustUrl(`${imageElement.src}`);
@@ -391,6 +392,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
 
   private async startImageRefresh() {
     // Ejecuta el refresco de imagen a intervalos
+    if(!this.evaluationMode)this.evaluationMode = true;
     this.onSelectExercise(this.exerciseNum);
     this.setExerciseModal(5);
     this.intervalId = setInterval(async () => {
@@ -461,14 +463,23 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     this.poseResult.value = 0;
     this.stepNum++;
     if(this.stepNum >= this.steps.length){
-      console.log("Cambio de ejercicio");
-      this.stepNum = 0;
-      this.exerciseNum++;
-      this.onSelectExercise(this.exerciseNum);
+      if(this.evaluationMode){
+        this.evaluationMode = false;
+        console.log("Cambio de ejercicio");
+        this.stepNum = 0;
+        this.exerciseNum++;
+        this.onSelectExercise(this.exerciseNum);
+        setTimeout(() =>{
+          
+        }, 500);
+      }
     }else{
-      console.log("Cambio de paso");
-      this.onStepSelect(this.stepNum);
-      this.startImageRefresh();
+      if(this.evaluationMode){
+        this.evaluationMode = false;
+        console.log("Cambio de paso");
+        this.onStepSelect(this.stepNum);
+        this.startImageRefresh();
+      }
     }
   }
 
@@ -478,10 +489,12 @@ export class StreamingFfmpegPage implements AfterViewInit  {
       this.progress = Math.min(this.progress + interval, 1);
       this.progressColor = this.progress > 0.75 ? 'success' : this.progress > 0.5 ? 'warning' : 'primary';
       if(this.progress === 1){
+        this.poseResult.value = 0;
+        this.progress = 0;
         this.stopImageRefresh();
         setTimeout(() => {
           this.changePose();
-        }, 1000);
+        }, 500);
       }
     }, 1000)
   }
@@ -605,6 +618,9 @@ export class StreamingFfmpegPage implements AfterViewInit  {
       //setTimeout(() => {
         this.onStepSelect(this.stepNum);
       //}, 1000);
+      if(this.exerciseNum > 0 ){
+        this.startImageRefresh();
+      }
     }
   }
 
