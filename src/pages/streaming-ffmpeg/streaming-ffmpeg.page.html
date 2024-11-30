@@ -34,7 +34,7 @@
 </ion-accordion-group>
 <ion-content class="ion-padding">
   <ion-card color="primary" class="ion-padding" button="true" detail="false">
-    <ion-text style="text-align: center;">{{step}}</ion-text>
+    <ion-text style="text-align: center;">{{instruction}}</ion-text>
   </ion-card>
   <div #contentDiv class="canvas_container">
     <img #testImage [src]="testImageUrl" style="display: block; z-index: 0;" width="100%">
@@ -43,10 +43,10 @@
     <ion-modal id="example-modal" #modal trigger="open-info">
       <ng-template>
         <div class="wrapper">
-          <h1 style="text-align: center;">Información del ejecricio</h1>
+          <h1 style="text-align: center;">{{step}}</h1>
           <img #modelImage [src]="modelImageUrl" class="ion-padding" alt="modelImage" style="display: block;" width="100%">
           <ion-card color="primary" class="ion-padding" button="true" detail="false" (click)="modal.dismiss()">
-            <ion-text style="text-align: center;">{{step}}</ion-text>
+            <ion-text style="text-align: center;">{{instruction}}</ion-text>
           </ion-card>
         </div>
         <ion-progress-bar #modalProgressBar [value]="modalProgress" color="primary"></ion-progress-bar>

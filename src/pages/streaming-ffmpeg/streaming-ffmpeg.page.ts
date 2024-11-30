@@ -8,6 +8,28 @@ import FFmpegStream from 'src/plugins/ffmpeg-stream.plugin';
 
 
 // Definición de Tipos
+interface Data {
+  name: string;
+  exercises: ExcerciseData[];
+}
+interface ExcerciseData{
+  exerciseName: string;
+  route: string;
+}
+interface Exercise {
+  name: string;
+  steps: Step[];
+  tolerance: number;
+  time: number;
+  reps: number;
+  restTime: number;
+}
+interface Step {
+  name: string;
+  imageName: string;
+  instruction: string;
+  angles: AngleData[];
+}
 interface AngleData {
   name: string;
   options: [string, string];
@@ -76,6 +98,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   models!:any[];
   step: string = '';
   stepNum: number = 0;
+  exerciseNum: number = 0;
   open = false;
   done = false;
   progress = 0;
@@ -84,9 +107,15 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   progressColor: string = 'danger';
   poseResult!: ObservableNumber;
   message = '';
+  instruction = '';
   seconds!: number;
   newInterval: any;
   estimation: number = 0;
+  modelData!: Data;
+  exercises:Exercise[] = [];
+  steps: Step[] = [];
+  currentExercise!: Exercise;
+  currentStep!: Step;
 
   constructor(public sanitizer: DomSanitizer, private platform: Platform, private http: HttpClient) {
     this.poseResult = new ObservableNumber();
@@ -362,7 +391,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
 
   private async startImageRefresh() {
     // Ejecuta el refresco de imagen a intervalos
-    this.onModelSelect(this.selectedModel);
+    this.onSelectExercise(this.exerciseNum);
     this.setExerciseModal(5);
     this.intervalId = setInterval(async () => {
       const imageElement = await this.getImageUrl();
@@ -373,7 +402,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
           try{
             const poseLandmarkerResult = this.poseLandmarker.detect(imageElement);
             if (poseLandmarkerResult) {
-              this.onResults(poseLandmarkerResult, this.selectedModel);
+              this.onResults(poseLandmarkerResult);
             }
           }catch (error){
             console.error("Error al detectar poses con mediapipe: ", error);
@@ -392,15 +421,13 @@ export class StreamingFfmpegPage implements AfterViewInit  {
   }
 
   private getJsonModels(){
-    this.http.get('assets/mediapipe/pattern/box-routine.json').subscribe(
+    this.http.get('assets/mediapipe/pattern/abdomen-routine.json').subscribe(
       data => {
         this.jsonData = data;
-        this.models = Object.keys(this.jsonData).map(key => ({ name: key, content: this.jsonData[key] }));
-        console.log(this.models[0].content);
+        this.models = Object.keys(this.jsonData).map(key => ({ name: key, data: this.jsonData[key] }));
         if(this.selectedModel == null){
-          this.selectedModel = this.models[this.stepNum];
-          //this.seconds = this.selectedModel.content.time;
-          console.log(this.selectedModel.content.instruction);
+          this.selectedModel = this.models[0];
+          this.onRoutineSelect(this.selectedModel);
         }
       },
       error => {
@@ -409,8 +436,20 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     );
   }
 
-  changeExercise(){
-    this.stopImageRefresh();
+  private getJsonExercises(path: string){
+    this.http.get(`assets/mediapipe/pattern/${path}`).subscribe(
+      data => {
+        this.jsonData = data;
+        const models = Object.keys(this.jsonData).map(key => ({ name: key, data: this.jsonData[key] }));
+        this.setModels(models[0].data);
+      },
+      error => {
+        console.error('Error al cargar el archivo JSON:', error);
+      }
+    );
+  }
+
+  changePose(){
     if(this.newInterval){
       clearInterval(this.newInterval);
       this.newInterval = null;
@@ -421,10 +460,14 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     },1000);
     this.poseResult.value = 0;
     this.stepNum++;
-    if(this.stepNum >= this.models.length){
-      this.finishRoutine();
+    if(this.stepNum >= this.steps.length){
+      console.log("Cambio de ejercicio");
+      this.stepNum = 0;
+      this.exerciseNum++;
+      this.onSelectExercise(this.exerciseNum);
     }else{
-      this.selectedModel = this.models[this.stepNum];
+      console.log("Cambio de paso");
+      this.onStepSelect(this.stepNum);
       this.startImageRefresh();
     }
   }
@@ -435,7 +478,10 @@ export class StreamingFfmpegPage implements AfterViewInit  {
       this.progress = Math.min(this.progress + interval, 1);
       this.progressColor = this.progress > 0.75 ? 'success' : this.progress > 0.5 ? 'warning' : 'primary';
       if(this.progress === 1){
-        this.changeExercise();
+        this.stopImageRefresh();
+        setTimeout(() => {
+          this.changePose();
+        }, 1000);
       }
     }, 1000)
   }
@@ -444,6 +490,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     this.canvasCtx.clearRect(0, 0, this.outputCanvas.width, this.outputCanvas.height);
     this.message = 'Rutina finalizada';
     this.stepNum = 0;
+    this.exerciseNum = 0;
     this.selectedModel = this.models[this.stepNum];
     this.dynamicImageUrl = '../assets/Portada_Fondo_-_Camara.png';
   }
@@ -511,11 +558,69 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     await modal?.dismiss();
   }
 
+  onRoutineSelect(selectedRoutine: any){
+    let modelData: Data = {
+      name: selectedRoutine.data.name,
+      exercises: []
+    };
+    for(const exercise of selectedRoutine.data.exercises){
+      const exerciseData: ExcerciseData = {
+        exerciseName: exercise.exerciseName,
+        route: exercise.route
+      };
+      modelData.exercises.push(exerciseData);
+    }
+    this.modelData = modelData;
+    for(const exercise of this.modelData.exercises){
+      this.getJsonExercises(exercise.route);
+    }
+    setTimeout(() => {
+      this.onSelectExercise(this.exerciseNum);
+    }, 1000)
+  }
+
+  setModels(data: any){
+    console.log(data);
+    const exercise: Exercise = {
+      name: data.name,
+      steps: data.steps,
+      tolerance: data.tolerance,
+      time: data.time,
+      reps: data.reps,
+      restTime: data.restTime
+    }
+    this.exercises.push(exercise);
+  }
+
+  onSelectExercise(number: number){
+    if(number >= this.exercises.length){
+      this.finishRoutine();
+    }else{
+      this.currentExercise = this.exercises[number];
+      this.steps = [];
+      const angles = this.currentExercise.steps;
+      for (const [angleName, angleData] of Object.entries(angles) as [string, Step][]){
+        this.steps.push(angleData);
+      }
+      //setTimeout(() => {
+        this.onStepSelect(this.stepNum);
+      //}, 1000);
+    }
+  }
+
+  onStepSelect(stepNum: number){
+    this.currentStep = this.steps[stepNum];
+    //console.log(this.currentStep);
+    this.step = `Paso: ${stepNum+1} ${this.currentStep.name}`;
+    this.instruction = this.currentStep.instruction;
+    this.seconds = this.currentExercise.time;
+    this.modelImageUrl = this.currentStep.imageName;
+  }
+
   onModelSelect(selectedModel: any) {
     // Puedes asignar el modelo y la URL a propiedades de la clase si es necesario
-    this.seconds = this.selectedModel.content.time;
-    this.modelImageUrl = selectedModel.content.imageName;
-    this.step = selectedModel.content.instruction;
+    this.seconds = selectedModel.time;
+    this.modelImageUrl = selectedModel.steps.imageName;
   }
 
   private calculateAngle(pointA:any, pointB:any, pointC:any): number {
@@ -530,7 +635,7 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     return (angleInRadians * 180) / Math.PI; // Convertir a grados
   }
 
-  private onResults(results: PoseLandmarkerResult, selectedModel: any) {
+  private onResults(results: PoseLandmarkerResult) {
     if (!this.canvasCtx) return;
 
     let landmarksTrue: NormalizedLandmark[][] = [[]];
@@ -539,14 +644,12 @@ export class StreamingFfmpegPage implements AfterViewInit  {
     this.errorsPose = 0;
     this.errorsPosePoints = '';
 
-    const tolerance = selectedModel.content.tolerance;
-    const angles = selectedModel.content.angles;
+    const tolerance = this.currentExercise.tolerance;
+    const angles = this.currentStep.angles;
 
     for (const [angleName, angleData] of Object.entries(angles) as [string, AngleData][]) {
       const [indexA, indexB, indexC] = angleData.points;
       const landmarks = results.landmarks[0];
-
-      // console.log("--------------Modelo----------" + this.selectedModel.name);
 
       const pointA = landmarks[indexA];
       const pointB = landmarks[indexB];

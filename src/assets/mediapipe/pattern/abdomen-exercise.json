@@ -1,0 +1,82 @@
+{
+  "Exercise":{
+    "name": "Ejercicio básico de plancha",
+    "steps": {
+      "Step1": {
+        "name": "Paso 1, postura de plancha",
+        "imageName": "assets/postures/abdomen/plancha1.jpg",
+        "instruction": "Colócate en posición de plancha apoyándote sobre los codos y estirando las piernas",
+        "angles": {
+          "leftElbow": {
+            "name": "codo izquierdo",
+            "options": ["cerrar", "abrir"],
+            "expected": 90,
+            "points": [11, 13, 15],
+            "message": "Ángulo entre el hombro derecho, el codo derecho y la muñeca derecha",
+            "required": true
+          },
+          "rightElbow": {
+            "name": "codo derecho",
+            "options": ["cerrar", "abrir"],
+            "expected": 75,
+            "points": [12, 14, 16],
+            "message": "Ángulo entre el hombro izquierdo, el codo izquierdo y la muñeca izquierda",
+            "required": true
+          },
+          "leftShoulder": {
+            "name": "hombro izquierdo",
+            "options": ["cerrar", "abrir"],
+            "expected": 85,
+            "points": [23, 11, 13],
+            "message": "Ángulo entre la cadera izquierda, el hombro izquierdo y el codo izquierdo",
+            "required": true
+          },
+          "rightShoulder": {
+            "name": "hombro derecho",
+            "options": ["cerrar", "abrir"],
+            "expected": 85,
+            "points": [24, 12, 14],
+            "message": "Ángulo entre la cadera derecha, el hombro derecho y el codo derecho",
+            "required": true
+          },
+          "rightKnee": {
+            "name": "rodilla izquierda",
+            "options": ["levantar", "bajar"],
+            "expected": 170,
+            "points": [23, 25, 27],
+            "message": "Ángulo entre la cadera derecha, la rodilla derecha y el tobillo derecho",
+            "required": true
+          },
+          "leftKnee": {
+            "name": "rodilla derecha",
+            "options": ["levantar", "bajar"],
+            "expected": 170,
+            "points": [24, 26, 28],
+            "message": "Ángulo entre la cadera izquierda, la rodilla izquierda y el tobillo izquierdo",
+            "required": true
+          },
+          "rightHip": {
+            "name": "cadera izquierda",
+            "options": ["abrir", "cerrar"],
+            "expected": 150,
+            "points": [11, 23, 25],
+            "message": "Ángulo entre el hombro derecho, la cadera derecha y la rodilla derecha",
+            "required": true
+          },
+          "leftHip": {
+            "name": "cadera derecha",
+            "options": ["abrir", "cerrar"],
+            "expected": 150,
+            "points": [12, 24, 26],
+            "message": "Ángulo entre el hombro izquierdo, la cadera izquierda y la rodilla izquierda",
+            "required": true
+          }
+        }
+      }
+    },
+    "tolerance": 15,
+    "time": 3,
+    "reps": 5,
+    "restTime": 10
+  }
+}
